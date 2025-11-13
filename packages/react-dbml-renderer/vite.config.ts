@@ -17,7 +17,7 @@ export default defineConfig({
     dts({
       entryRoot: 'src',
       outDir: 'dist/types',
-      tsconfigPath: './tsconfig.json',
+      tsconfigPath: './tsconfig.app.json',
     }),
   ],
   build: {
@@ -27,10 +27,6 @@ export default defineConfig({
       // the proper extensions will be added
       fileName: 'react-dbml-renderer',
       formats: ['es', 'cjs'],
-      // fileName: (format) =>
-      //   format === 'es'
-      //     ? 'react-dbml-renderer.es.js'
-      //     : 'react-dbml-renderer.cjs',
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
@@ -44,11 +40,19 @@ export default defineConfig({
         'lodash',
       ],
       output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+        },
+        assetFileNames: ({ names }) => {
+          for (const name of names) {
+            if (name.endsWith('.css')) {
+              return 'style.css'
+            }
+          }
+
+          // everything else keeps the default pattern
+          return '[name].[extname]'
         },
       },
     },

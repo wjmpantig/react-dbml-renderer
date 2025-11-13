@@ -6,9 +6,9 @@
   "author": {
     "name": "Winfred Jester Pantig"
   },
-  "main": "dist/reat-dbml-renderer.cjs",
-  "module": "dist/reat-dbml-renderer.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/react-dbml-renderer.cjs",
+  "module": "dist/react-dbml-renderer.js",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

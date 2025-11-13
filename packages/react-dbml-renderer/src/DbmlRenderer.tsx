@@ -20,7 +20,7 @@ import {
   type PreviewContextValue,
 } from './contexts/PreviewContext';
 import { createTableId } from './utils/ids';
-
+import styles from './DbmlRenderer.module.scss'
 type Props = {
   content: string;
 };
@@ -194,7 +194,7 @@ const DbmlRenderer = (props: Props) => {
         refs: edges,
       }}
     >
-      <div className="preview">
+      <div className={styles.container}>
         <ReactFlow
           nodes={nodes}
           onNodesChange={onNodesChange}
