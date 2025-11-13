@@ -1,0 +1,34 @@
+.base {
+  &::before {
+    content: 'x';
+    position: absolute;
+    top: 50%;
+    lefT: 50%;
+    transform: translate(0, -50%);
+  }
+}
+.relation-one {
+  &::before {
+    content: '1';
+  }
+}
+
+.relation-many {
+  &::before {
+    content: '*';
+
+  }
+}
+
+.left {
+  &::before {
+    left: calc(50% - 1rem)
+
+  }
+}
+
+.right {
+  &::before {
+    left: calc(50% + 1rem)
+  }
+}

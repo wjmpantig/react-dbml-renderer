@@ -1,0 +1,42 @@
+.field {
+  position: relative;
+  padding: 0.1rem 1rem;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  display: flex;
+  gap: 1rem;
+  &:hover {
+    border-color: var(--xy-node-border-default);
+    
+  }
+  justify-content: space-between;
+}
+
+.field-name {
+  word-wrap: normal;
+  word-break: keep-all;
+  white-space: nowrap;
+}
+.label {
+  flex-shrink: 0;
+}
+.field-name-pk {
+  font-weight: 500;
+
+}
+
+.note {
+  position: absolute;
+  border: 1px solid;
+  border-color: var(--xy-node-border-default);
+  background: var(--xy-node-background-color-default);
+  color: var(--xy-node-color-default);
+  width: max-content;
+  padding: 1rem;
+  z-index: 10;
+}
+
+.properties {
+  display: flex;
+  gap: 0.1rem;
+}
