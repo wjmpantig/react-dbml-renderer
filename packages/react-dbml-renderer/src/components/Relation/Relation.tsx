@@ -19,6 +19,7 @@ const Relation: FC<Props> = (props) => {
   const relationStyle = RELATION_STYLES[relation]
   
   const positionStyle = POSITION_STYLES[position]
+  console.log(relation, relationStyle, styles)
   return (
     <Handle 
       {...otherProps}

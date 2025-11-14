@@ -10,6 +10,7 @@ import styles from './Field.module.scss';
 import Relation from '../Relation/Relation';
 import type Ref from '@dbml/core/types/model_structure/ref';
 import type Endpoint from '@dbml/core/types/model_structure/endpoint';
+import { FaNoteSticky, FaKey } from 'react-icons/fa6'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
   field: DbmlField;
@@ -22,13 +23,14 @@ const Field = (props: Props) => {
   const { name, type, not_null, pk, note, 
     // endpoints, table, 
     id, 
-    // _enum
+    _enum,
+    dbdefault,
   } = field;
   const edges = useEdges()
-
+  
   const handleIdPrefix = `field-${id}-`;
   const connectedEdges = edges.filter(edge => edge.sourceHandle?.startsWith(handleIdPrefix) || edge.targetHandle?.startsWith(handleIdPrefix))
-  const [showNotes, setShowNotes] = useState(false);
+  const [detailsVisible, setDetailsVisible] = useState(false);
 
   const handles = connectedEdges.map<ReactNode>((edge) => {
     const regex = /field-\d+-(source|target)-(left|right)/
@@ -51,40 +53,69 @@ const Field = (props: Props) => {
               relation={endpoint.relation}
                />
   })
-
+  const hasDetails = !!note || !!_enum || !!dbdefault
+  
   return (
-    <div className={styles.field}>
-      <div className={styles.label}>
-        <span className={clsx(styles.fieldName, pk && styles.fieldNamePk)}>
-          {name}
-          {note && (
-          <button
-            type="button"
-            onMouseEnter={() => {
-              setShowNotes(true);
-            }}
-            onMouseLeave={() => {
-              setShowNotes(false);
-            }}
-          >
-            N
-            {showNotes && <div className={styles.note}>{note}</div>}
-          </button>
-        )}
-        </span>{' '}
-        : {type?.type_name}
-      </div>
-      {handles}
-      <div className={styles.properties}>
-        {pk && (
-          <button type="button" title="Primary Key">PK</button>
-        )}
-        {not_null && (
-          <button type="button" title="Not null">NN</button>
-        )}
-        
-        
-      </div>
+    <div className={styles.fieldContainer}>
+      <button className={styles.field} type="button" 
+        onMouseEnter={() => {
+          setDetailsVisible(true)
+        }}
+        onMouseLeave={() => {
+          setDetailsVisible(false)
+        }}
+        >
+        <div className={styles.label}>
+          <span className={clsx(styles.fieldName, pk && styles.fieldNamePk)} title={note}>
+            {name}
+            {pk && (
+              <FaKey className={styles.icon} />
+            )}
+            {note && (
+              <FaNoteSticky className={styles.icon} />
+          )}
+          </span>
+        </div>
+        {handles}
+        <div className={styles.properties}>
+          <span className={styles.dataType}>
+            <code>{type?.type_name}</code>
+          </span>
+          {!!_enum && (
+            <span title="Enum">E</span>
+          )}
+          {not_null && (
+            <span title="Not null">NN</span>
+          )}
+        </div>
+      </button>
+      {hasDetails && detailsVisible &&
+        <aside className={styles.details}>
+          <div className={styles.detailsFieldName}>{name}</div>
+          <div className={styles.detailsContent}>
+            {_enum && (
+              <div>
+                <div>ENUM {_enum.name}</div>
+                <ul className={styles.enumList}>
+                  {_enum.values.map((value) => {
+                    return <li key={value.id}>
+                      <code>{value.name}</code>
+                    </li>
+                  })}
+                </ul>
+              </div>
+            )}
+            {note && (
+              <div>{note}</div>
+            )}
+            {
+              dbdefault && (
+                <div>DEFAULT <code>{dbdefault?.value}</code></div>
+              )
+            }
+            
+          </div>
+      </aside>}
     </div>
   );
 };
