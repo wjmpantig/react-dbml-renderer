@@ -9,6 +9,10 @@
   "main": "dist/react-dbml-renderer.cjs",
   "module": "dist/react-dbml-renderer.js",
   "types": "dist/types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wjmpantig/react-dbml-renderer.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
