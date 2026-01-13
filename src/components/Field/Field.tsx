@@ -3,8 +3,14 @@ import type DbmlField from "@dbml/core/types/model_structure/field";
 import type Ref from "@dbml/core/types/model_structure/ref";
 import { type HandleType, Position, useEdges } from "@xyflow/react";
 import clsx from "clsx";
-import { type HTMLAttributes, type ReactNode, useState } from "react";
+import {
+	type HTMLAttributes,
+	type ReactNode,
+	useEffect,
+	useState,
+} from "react";
 import { FaKey, FaNoteSticky } from "react-icons/fa6";
+import { useDbmlRendererContext } from "../../contexts/DbmlRendererContext";
 import Relation from "../Relation/Relation";
 import styles from "./Field.module.scss";
 
@@ -35,8 +41,8 @@ const Field = (props: Props) => {
 			edge.sourceHandle?.startsWith(handleIdPrefix) ||
 			edge.targetHandle?.startsWith(handleIdPrefix),
 	);
-	const [detailsVisible, setDetailsVisible] = useState(false);
-
+	const [hovered, setHovered] = useState(false);
+	const { addAnimatedEdges, removeAnimatedEdges } = useDbmlRendererContext();
 	const handles = connectedEdges.map<ReactNode>((edge) => {
 		const regex = /field-\d+-(source|target)-(left|right)/;
 		const isSource = edge.sourceHandle?.startsWith(handleIdPrefix);
@@ -61,17 +67,24 @@ const Field = (props: Props) => {
 		);
 	});
 	const hasDetails = !!note || !!_enum || !!dbdefault;
-
+	const edgeIds = connectedEdges.map((edge) => edge.id);
+	useEffect(() => {
+		if (hovered) {
+			addAnimatedEdges(edgeIds);
+		} else {
+			removeAnimatedEdges(edgeIds);
+		}
+	}, [hovered]);
 	return (
 		<div className={styles.fieldContainer}>
 			<button
 				className={styles.field}
 				type="button"
 				onMouseEnter={() => {
-					setDetailsVisible(true);
+					setHovered(true);
 				}}
 				onMouseLeave={() => {
-					setDetailsVisible(false);
+					setHovered(false);
 				}}
 			>
 				<div className={styles.label}>
@@ -93,7 +106,7 @@ const Field = (props: Props) => {
 					{not_null && <span title="Not null">NN</span>}
 				</div>
 			</button>
-			{hasDetails && detailsVisible && (
+			{hasDetails && hovered && (
 				<aside className={styles.details}>
 					<div className={styles.detailsFieldName}>{name}</div>
 					<div className={styles.detailsContent}>

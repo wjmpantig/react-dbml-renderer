@@ -2,3 +2,16 @@
   height: 100%;
   width: 100%;
 }
+
+.edge {
+  path {
+    stroke: var(--xy-edge-stroke-default);
+    // stroke: green;
+  }
+}
+
+.edge-animated {
+  path {
+    stroke: var(--xy-edge-stroke-selected-default);
+  }
+}

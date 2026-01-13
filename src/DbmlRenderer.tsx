@@ -14,14 +14,15 @@ import {
 	useEdgesState,
 	useNodesState,
 } from "@xyflow/react";
+import clsx from "clsx";
 import Table from "./components/Table";
 import {
 	DbmlRendererContext,
 	type DbmlRendererContextValue,
 	type Dimension,
-} from "./contexts/PreviewContext";
+} from "./contexts/DbmlRendererContext";
 import styles from "./DbmlRenderer.module.scss";
-import { createTableId } from "./utils/ids";
+import { createRelationId, createTableId } from "./utils/ids";
 
 type Props = {
 	content: string;
@@ -44,6 +45,7 @@ const DbmlRenderer = (props: Props) => {
 	const [tableSizes, setTables] = useState<DbmlRendererContextValue["tables"]>(
 		{},
 	);
+	const [animatedEdges, setAnimatedEdges] = useState<string[]>([]);
 	const reactFlowInstance = useRef<null | ReactFlowInstance>(null);
 	const database = useMemo(() => {
 		try {
@@ -75,21 +77,28 @@ const DbmlRenderer = (props: Props) => {
 						};
 					});
 					const newEdges = schema.refs.map<Edge>((ref) => {
-						const { endpoints, id, schema } = ref;
+						const { endpoints } = ref;
 						const [source, target] = endpoints;
 						const { id: sourceFieldId, table: sourceTable } = source.fields[0];
 						const { id: targetFieldId, table: targetTable } = target.fields[0];
 						const sourceHandle = `field-${sourceFieldId}-source`;
 						const targetHandle = `field-${targetFieldId}-target`;
+						const refId = createRelationId(ref);
+						const animated = animatedEdges.includes(refId);
+						const className = clsx(
+							styles.edge,
+							animated && styles.edgeAnimated,
+						);
 						return {
-							id: `schema-${schema.id}-ref-${id}`,
+							id: refId,
 							source: createTableId(sourceTable),
 							target: createTableId(targetTable),
 							sourceHandle,
 							targetHandle,
 							type: "step",
 							data: { ref },
-							// animated: true,
+							animated,
+							className: className,
 						};
 					});
 					return {
@@ -102,7 +111,7 @@ const DbmlRenderer = (props: Props) => {
 
 			return data;
 		},
-		[tableSizes],
+		[tableSizes, animatedEdges],
 	);
 	const getLayoutedElements = useCallback(
 		(nodes: Node[], edges: Edge[], direction = "TB") => {
@@ -188,16 +197,18 @@ const DbmlRenderer = (props: Props) => {
 		setEdges(layoutedEdges);
 	}, [database, createNodesAndEdges, getLayoutedElements, setEdges, setNodes]);
 
-	useEffect(() => {
-		if (!reactFlowInstance.current) {
-			return;
-		}
-		reactFlowInstance.current.fitView({
-			nodes,
-		});
-		console.log("fit view");
-	}, [nodes]);
-
+	// useEffect(() => {
+	// 	if (!reactFlowInstance.current) {
+	// 		return;
+	// 	}
+	// 	reactFlowInstance.current.fitView({
+	// 		nodes,
+	// 	});
+	// 	console.log("fit view");
+	// }, [nodes]);
+	console.log({
+		animatedEdges,
+	});
 	return (
 		<DbmlRendererContext
 			value={{
@@ -213,6 +224,13 @@ const DbmlRenderer = (props: Props) => {
 					});
 				},
 				refs: edges,
+				animatedEdges,
+				addAnimatedEdges: (edges) => {
+					setAnimatedEdges((prev) => [...prev, ...edges]);
+				},
+				removeAnimatedEdges: (edges) => {
+					setAnimatedEdges((prev) => prev.filter((id) => !edges.includes(id)));
+				},
 			}}
 		>
 			<div className={styles.container}>
