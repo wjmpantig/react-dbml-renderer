@@ -4,14 +4,14 @@ export type Dimension = {
 	width: number;
 	height: number;
 };
-export type PreviewContextValue = {
+export type DbmlRendererContextValue = {
 	tables: {
 		[key: string]: Dimension;
 	};
 	refs: Edge[];
 	setTable: (id: string, node: Dimension) => void;
 };
-export const PreviewContext = createContext<PreviewContextValue>({
+export const DbmlRendererContext = createContext<DbmlRendererContextValue>({
 	tables: {},
 	setTable: () => {},
 	refs: [],

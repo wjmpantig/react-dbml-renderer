@@ -1,5 +1,5 @@
 import { Parser } from "@dbml/core";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "@xyflow/react/dist/style.css";
 import dagre from "@dagrejs/dagre";
 import type Database from "@dbml/core/types/model_structure/database";
@@ -10,14 +10,15 @@ import {
 	MiniMap,
 	type Node,
 	ReactFlow,
+	type ReactFlowInstance,
 	useEdgesState,
 	useNodesState,
 } from "@xyflow/react";
 import Table from "./components/Table";
 import {
+	DbmlRendererContext,
+	type DbmlRendererContextValue,
 	type Dimension,
-	PreviewContext,
-	type PreviewContextValue,
 } from "./contexts/PreviewContext";
 import styles from "./DbmlRenderer.module.scss";
 import { createTableId } from "./utils/ids";
@@ -40,7 +41,10 @@ const nodeTypes = {
 
 const DbmlRenderer = (props: Props) => {
 	const { content } = props;
-	const [tableSizes, setTables] = useState<PreviewContextValue["tables"]>({});
+	const [tableSizes, setTables] = useState<DbmlRendererContextValue["tables"]>(
+		{},
+	);
+	const reactFlowInstance = useRef<null | ReactFlowInstance>(null);
 	const database = useMemo(() => {
 		try {
 			const ast = Parser.parse(content, "dbmlv2");
@@ -53,117 +57,122 @@ const DbmlRenderer = (props: Props) => {
 	const ref = useRef(null);
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
 	const [edges, setEdges] = useEdgesState<Edge>([]);
-	const createNodesAndEdges = (database: Database): NodesEdges => {
-		const data = database.schemas.reduce<NodesEdges>(
-			({ nodes, edges }, schema) => {
-				const newNodes = schema.tables.map<Node>((table) => {
-					const tableId = createTableId(table);
-					const { width, height } = tableSizes[tableId] || {};
+	const createNodesAndEdges = useCallback(
+		(database: Database): NodesEdges => {
+			const data = database.schemas.reduce<NodesEdges>(
+				({ nodes, edges }, schema) => {
+					const newNodes = schema.tables.map<Node>((table) => {
+						const tableId = createTableId(table);
+						const { width, height } = tableSizes[tableId] || {};
+						return {
+							id: tableId,
+							type: "table",
+							width,
+							height,
+							position: { x: 0, y: 0 },
+							data: { table },
+							draggable: true,
+						};
+					});
+					const newEdges = schema.refs.map<Edge>((ref) => {
+						const { endpoints, id, schema } = ref;
+						const [source, target] = endpoints;
+						const { id: sourceFieldId, table: sourceTable } = source.fields[0];
+						const { id: targetFieldId, table: targetTable } = target.fields[0];
+						const sourceHandle = `field-${sourceFieldId}-source`;
+						const targetHandle = `field-${targetFieldId}-target`;
+						return {
+							id: `schema-${schema.id}-ref-${id}`,
+							source: createTableId(sourceTable),
+							target: createTableId(targetTable),
+							sourceHandle,
+							targetHandle,
+							type: "step",
+							data: { ref },
+							// animated: true,
+						};
+					});
 					return {
-						id: tableId,
-						type: "table",
-						width,
-						height,
-						position: { x: 0, y: 0 },
-						data: { table },
-						draggable: true,
+						nodes: nodes.concat(newNodes),
+						edges: edges.concat(newEdges),
 					};
-				});
-				const newEdges = schema.refs.map<Edge>((ref) => {
-					const { endpoints, id, schema } = ref;
-					const [source, target] = endpoints;
-					const { id: sourceFieldId, table: sourceTable } = source.fields[0];
-					const { id: targetFieldId, table: targetTable } = target.fields[0];
-					const sourceHandle = `field-${sourceFieldId}-source`;
-					const targetHandle = `field-${targetFieldId}-target`;
-					return {
-						id: `schema-${schema.id}-ref-${id}`,
-						source: createTableId(sourceTable),
-						target: createTableId(targetTable),
-						sourceHandle,
-						targetHandle,
-						type: "step",
-						data: { ref },
-						// animated: true,
-					};
-				});
-				return { nodes: nodes.concat(newNodes), edges: edges.concat(newEdges) };
-			},
-			{ nodes: [], edges: [] },
-		);
-
-		return data;
-	};
-	const getLayoutedElements = (
-		nodes: Node[],
-		edges: Edge[],
-		direction = "TB",
-	) => {
-		const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(
-			() => ({}),
-		);
-		dagreGraph.setGraph({
-			rankdir: direction, // top-bottom or left-right
-			nodesep: 50 * 3, // space between nodes in the same rank
-			ranksep: 50 * 3, // space between rows/columns
-		});
-
-		nodes.forEach((node) => {
-			const tableSize = tableSizes[node.id] || {
-				width: nodeWidth,
-				height: nodeHeight,
-			};
-			dagreGraph.setNode(node.id, tableSize);
-		});
-
-		edges.forEach((edge) => {
-			dagreGraph.setEdge(edge.source, edge.target);
-		});
-
-		dagre.layout(dagreGraph);
-
-		const layoutedNodes = nodes.map((node) => {
-			const nodeWithPosition = dagreGraph.node(node.id);
-
-			const newNode = {
-				...node,
-				position: {
-					x: nodeWithPosition.x,
-					y: nodeWithPosition.y,
 				},
+				{ nodes: [], edges: [] },
+			);
+
+			return data;
+		},
+		[tableSizes],
+	);
+	const getLayoutedElements = useCallback(
+		(nodes: Node[], edges: Edge[], direction = "TB") => {
+			const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(
+				() => ({}),
+			);
+			dagreGraph.setGraph({
+				rankdir: direction, // top-bottom or left-right
+				nodesep: 50 * 3, // space between nodes in the same rank
+				ranksep: 50 * 3, // space between rows/columns
+			});
+
+			nodes.forEach((node) => {
+				const tableSize = tableSizes[node.id] || {
+					width: nodeWidth,
+					height: nodeHeight,
+				};
+				dagreGraph.setNode(node.id, tableSize);
+			});
+
+			edges.forEach((edge) => {
+				dagreGraph.setEdge(edge.source, edge.target);
+			});
+
+			dagre.layout(dagreGraph);
+
+			const layoutedNodes = nodes.map((node) => {
+				const nodeWithPosition = dagreGraph.node(node.id);
+
+				const newNode = {
+					...node,
+					position: {
+						x: nodeWithPosition.x,
+						y: nodeWithPosition.y,
+					},
+				};
+
+				return newNode;
+			});
+			const findNode = (id: string) => {
+				return layoutedNodes.find((node) => id === node.id);
 			};
+			const newEdges = edges.map((edge) => {
+				const { target, source } = edge;
+				const sourceNode = findNode(source);
+				const targetNode = findNode(target);
+				if (!sourceNode || !targetNode) {
+					console.error(
+						`cant find source or target node, source: ${source} target: ${target}`,
+					);
+					return edge;
+				}
+				const { x: sourceX } = sourceNode.position;
+				const { x: targetX } = targetNode.position;
+				const newEdge = { ...edge };
 
-			return newNode;
-		});
-		const findNode = (id: string) => {
-			return layoutedNodes.find((node) => id === node.id);
-		};
-		const newEdges = edges.map((edge) => {
-			const { target, source } = edge;
-			const sourceNode = findNode(source);
-			const targetNode = findNode(target);
-			if (!sourceNode || !targetNode) {
-				console.error(
-					`cant find source or target node, source: ${source} target: ${target}`,
-				);
-				return edge;
-			}
-			const { x: sourceX } = sourceNode.position;
-			const { x: targetX } = targetNode.position;
-			const newEdge = { ...edge };
+				if (sourceX >= targetX) {
+					newEdge.sourceHandle = `${edge.sourceHandle}-left`;
+					newEdge.targetHandle = `${edge.targetHandle}-right`;
+				} else if (sourceX < targetX) {
+					newEdge.sourceHandle = `${edge.sourceHandle}-right`;
+					newEdge.targetHandle = `${edge.targetHandle}-left`;
+				}
+				return newEdge;
+			});
 
-			if (sourceX >= targetX) {
-				newEdge.sourceHandle = `${edge.sourceHandle}-left`;
-				newEdge.targetHandle = `${edge.targetHandle}-right`;
-			} else if (sourceX < targetX) {
-				newEdge.sourceHandle = `${edge.sourceHandle}-right`;
-				newEdge.targetHandle = `${edge.targetHandle}-left`;
-			}
-			return newEdge;
-		});
-
-		return { nodes: layoutedNodes, edges: newEdges };
-	};
+			return { nodes: layoutedNodes, edges: newEdges };
+		},
+		[tableSizes],
+	);
 	useEffect(() => {
 		if (!database) {
 			setNodes([]);
@@ -177,10 +186,20 @@ const DbmlRenderer = (props: Props) => {
 		);
 		setNodes(layoutedNodes);
 		setEdges(layoutedEdges);
-	}, [database, tableSizes]);
+	}, [database, createNodesAndEdges, getLayoutedElements, setEdges, setNodes]);
+
+	useEffect(() => {
+		if (!reactFlowInstance.current) {
+			return;
+		}
+		reactFlowInstance.current.fitView({
+			nodes,
+		});
+		console.log("fit view");
+	}, [nodes]);
 
 	return (
-		<PreviewContext
+		<DbmlRendererContext
 			value={{
 				tables: tableSizes,
 				setTable: (id: string, dimension: Dimension) => {
@@ -205,13 +224,16 @@ const DbmlRenderer = (props: Props) => {
 					ref={ref}
 					nodeTypes={nodeTypes}
 					colorMode="system"
+					onInit={(instance) => {
+						reactFlowInstance.current = instance;
+					}}
 				>
 					<Background />
 					<Controls />
 					<MiniMap />
 				</ReactFlow>
 			</div>
-		</PreviewContext>
+		</DbmlRendererContext>
 	);
 };
 export default DbmlRenderer;

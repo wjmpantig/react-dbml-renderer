@@ -1,6 +1,6 @@
 import type { Node } from "@xyflow/react";
 import { useContext, useEffect, useRef, useState } from "react";
-import { PreviewContext } from "../../contexts/PreviewContext";
+import { DbmlRendererContext } from "../../contexts/PreviewContext";
 import type { DbmlTable } from "../../types";
 import { createTableId } from "../../utils/ids";
 import Field from "../Field";
@@ -17,7 +17,7 @@ const Table = (props: Props) => {
 	} = props;
 	const [rendered, setRendered] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
-	const { setTable } = useContext(PreviewContext);
+	const { setTable } = useContext(DbmlRendererContext);
 
 	const {
 		fields,
