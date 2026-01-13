@@ -3,22 +3,25 @@
   height: 0;
   border: none;
   background: none;
+
   &::before {
     content: 'x';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(0, -50%);
+    // background: blue;
+    // display: block;
   }
 }
+
 .relation-one {
   &::before {
-    content: ' ';
-    display: block;
-    width: 2px;
-    height: 1em;
-    background-color: var(--xy-edge-stroke-default)
-    
+    content: '1';
+    // display: block;
+    // width: 2px;
+    // height: 1em;
+    // background-color: var(--xy-edge-stroke-default)
   }
 }
 
@@ -32,7 +35,6 @@
 .left {
   &::before {
     left: calc(50% - 0.75rem)
-
   }
 }
 

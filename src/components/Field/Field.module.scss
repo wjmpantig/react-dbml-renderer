@@ -17,10 +17,12 @@
   transition: all 0.2s;
 
   cursor: inherit;
+
   &:hover {
     border-color: var(--xy-node-border-default);
-    
+
   }
+
   justify-content: space-between;
 }
 
@@ -36,9 +38,11 @@
   word-break: keep-all;
   white-space: nowrap;
 }
+
 .label {
   flex-shrink: 0;
 }
+
 .field-name-pk {
   font-weight: 500;
 
@@ -84,12 +88,14 @@
 .details-content {
   padding: 0.5rem;
   display: block;
+  width: max-content;
 }
 
 .enum-list {
   margin: 0;
   padding-left: 1rem;
   width: max-content;
+
   li {
     list-style-type: none;
     margin: 0;
