@@ -13,5 +13,7 @@
 .edge-animated {
   path {
     stroke: var(--xy-edge-stroke-selected-default);
+    stroke-width: 2px;
+    z-index: 99;
   }
 }

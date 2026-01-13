@@ -26,6 +26,12 @@
   justify-content: space-between;
 }
 
+.field-highlighted {
+  border-color: var(--xy-node-border-default);
+  // border-width: 2px;
+  border-style: dashed;
+}
+
 
 .field-name {
   word-wrap: normal;

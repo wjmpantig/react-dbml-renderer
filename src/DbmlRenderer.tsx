@@ -45,7 +45,7 @@ const DbmlRenderer = (props: Props) => {
 	const [tableSizes, setTables] = useState<DbmlRendererContextValue["tables"]>(
 		{},
 	);
-	const [animatedEdges, setAnimatedEdges] = useState<string[]>([]);
+	const [animatedEdges, setAnimatedEdges] = useState<Edge[]>([]);
 	const reactFlowInstance = useRef<null | ReactFlowInstance>(null);
 	const database = useMemo(() => {
 		try {
@@ -84,7 +84,7 @@ const DbmlRenderer = (props: Props) => {
 						const sourceHandle = `field-${sourceFieldId}-source`;
 						const targetHandle = `field-${targetFieldId}-target`;
 						const refId = createRelationId(ref);
-						const animated = animatedEdges.includes(refId);
+						const animated = animatedEdges.some((edge) => edge.id === refId);
 						const className = clsx(
 							styles.edge,
 							animated && styles.edgeAnimated,
@@ -206,9 +206,7 @@ const DbmlRenderer = (props: Props) => {
 	// 	});
 	// 	console.log("fit view");
 	// }, [nodes]);
-	console.log({
-		animatedEdges,
-	});
+
 	return (
 		<DbmlRendererContext
 			value={{
@@ -229,7 +227,10 @@ const DbmlRenderer = (props: Props) => {
 					setAnimatedEdges((prev) => [...prev, ...edges]);
 				},
 				removeAnimatedEdges: (edges) => {
-					setAnimatedEdges((prev) => prev.filter((id) => !edges.includes(id)));
+					const ids = edges.map((edge) => edge.id);
+					setAnimatedEdges((prev) =>
+						prev.filter((edge) => !ids.includes(edge.id)),
+					);
 				},
 			}}
 		>

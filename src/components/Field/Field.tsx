@@ -7,6 +7,7 @@ import {
 	type HTMLAttributes,
 	type ReactNode,
 	useEffect,
+	useMemo,
 	useState,
 } from "react";
 import { FaKey, FaNoteSticky } from "react-icons/fa6";
@@ -41,8 +42,10 @@ const Field = (props: Props) => {
 			edge.sourceHandle?.startsWith(handleIdPrefix) ||
 			edge.targetHandle?.startsWith(handleIdPrefix),
 	);
+
 	const [hovered, setHovered] = useState(false);
-	const { addAnimatedEdges, removeAnimatedEdges } = useDbmlRendererContext();
+	const { animatedEdges, addAnimatedEdges, removeAnimatedEdges } =
+		useDbmlRendererContext();
 	const handles = connectedEdges.map<ReactNode>((edge) => {
 		const regex = /field-\d+-(source|target)-(left|right)/;
 		const isSource = edge.sourceHandle?.startsWith(handleIdPrefix);
@@ -67,18 +70,23 @@ const Field = (props: Props) => {
 		);
 	});
 	const hasDetails = !!note || !!_enum || !!dbdefault;
-	const edgeIds = connectedEdges.map((edge) => edge.id);
+	// const edgeIds = connectedEdges.map((edge) => edge.id);
 	useEffect(() => {
 		if (hovered) {
-			addAnimatedEdges(edgeIds);
+			addAnimatedEdges(connectedEdges);
 		} else {
-			removeAnimatedEdges(edgeIds);
+			removeAnimatedEdges(connectedEdges);
 		}
 	}, [hovered]);
+	const highlighted = useMemo(() => {
+		return animatedEdges.some((edge) =>
+			connectedEdges.some((connectedEdge) => connectedEdge.id === edge.id),
+		);
+	}, [animatedEdges, connectedEdges]);
 	return (
 		<div className={styles.fieldContainer}>
 			<button
-				className={styles.field}
+				className={clsx(styles.field, highlighted && styles.fieldHighlighted)}
 				type="button"
 				onMouseEnter={() => {
 					setHovered(true);

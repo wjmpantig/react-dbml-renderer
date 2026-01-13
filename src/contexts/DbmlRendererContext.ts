@@ -10,9 +10,9 @@ export type DbmlRendererContextValue = {
 	};
 	refs: Edge[];
 	setTable: (id: string, node: Dimension) => void;
-	animatedEdges: string[];
-	addAnimatedEdges: (edges: string[]) => void;
-	removeAnimatedEdges: (edges: string[]) => void;
+	animatedEdges: Edge[];
+	addAnimatedEdges: (edges: Edge[]) => void;
+	removeAnimatedEdges: (edges: Edge[]) => void;
 };
 export const DbmlRendererContext = createContext<DbmlRendererContextValue>({
 	tables: {},
