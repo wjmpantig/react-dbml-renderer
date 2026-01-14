@@ -32,12 +32,11 @@ export default defineConfig({
 			// make sure to externalize deps that shouldn't be bundled
 			// into your library
 			external: [
-				"react",
-				"react-dom",
+				/^react($|\/)/,        // Matches 'react' and 'react/jsx-runtime' etc.
+  			/^react-dom($|\/)/,
 				"@dbml/core",
 				"@dbml/parse",
-				"antlr4",
-				"lodash",
+				"@xyflow/react",
 			],
 			output: {
 				globals: {
@@ -56,6 +55,7 @@ export default defineConfig({
 				},
 			},
 		},
+		cssCodeSplit: false,
 	},
 	css: {
 		modules: {

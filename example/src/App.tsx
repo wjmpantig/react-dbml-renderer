@@ -1,7 +1,8 @@
-import { DbmlRenderer } from 'react-dbml-renderer'
-import 'react-dbml-renderer/dist/style.css';
+import { DbmlRenderer } from "@wjmpantig/react-dbml-renderer";
+import "@xyflow/react/dist/style.css";
+import "@wjmpantig/react-dbml-renderer/style.css";
 
-import './App.css'
+import "./App.css";
 const DEFAULT = `
 Project sample_app_db {
   database_type: 'PostgreSQL'
@@ -292,15 +293,15 @@ Ref: public.users.id < public.users.referrer_id
 
 // Cross-schema (explicit only): payment_events -> payment_intents
 Ref: payments.payment_intents.id < payments.payment_events.payment_intent_id
-  `
+  `;
 function App() {
-  return (
-    <>
-      <div className="app" >
-        <DbmlRenderer content={DEFAULT}/>
-      </div>
-    </>
-  )
+	return (
+		<>
+			<div className="app">
+				<DbmlRenderer content={DEFAULT} />
+			</div>
+		</>
+	);
 }
 
-export default App
+export default App;

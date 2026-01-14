@@ -1,7 +1,5 @@
-import { Parser } from "@dbml/core";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import "@xyflow/react/dist/style.css";
 import dagre from "@dagrejs/dagre";
+import { Parser } from "@dbml/core";
 import type Database from "@dbml/core/types/model_structure/database";
 import {
 	Background,
@@ -15,6 +13,7 @@ import {
 	useNodesState,
 } from "@xyflow/react";
 import clsx from "clsx";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Table from "./components/Table";
 import {
 	DbmlRendererContext,

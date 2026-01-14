@@ -1,5 +1,5 @@
 import DbmlRenderer from "./DbmlRenderer";
-
+import "@xyflow/react/dist/style.css";
 import "./App.css";
 const DEFAULT = `
 Project sample_app_db {
@@ -296,7 +296,6 @@ function App() {
 	return (
 		<>
 			<div className="app">
-        
 				<DbmlRenderer content={DEFAULT} />
 			</div>
 		</>

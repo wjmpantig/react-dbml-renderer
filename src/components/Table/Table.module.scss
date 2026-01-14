@@ -12,4 +12,6 @@
   border-color: var(--xy-node-border-default);
   padding-inline: 1rem;
   padding-block: 0.5rem;
+  white-space: nowrap;
+  min-width: max-content;
 }
