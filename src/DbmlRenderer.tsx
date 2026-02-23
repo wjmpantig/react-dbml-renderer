@@ -44,6 +44,8 @@ const DbmlRenderer = (props: Props) => {
 	const [tableSizes, setTables] = useState<DbmlRendererContextValue["tables"]>(
 		{},
 	);
+	const tableSizesRef = useRef(tableSizes);
+	tableSizesRef.current = tableSizes;
 	const [animatedEdges, setAnimatedEdges] = useState<Edge[]>([]);
 	const reactFlowInstance = useRef<null | ReactFlowInstance>(null);
 	const database = useMemo(() => {
@@ -64,7 +66,7 @@ const DbmlRenderer = (props: Props) => {
 				({ nodes, edges }, schema) => {
 					const newNodes = schema.tables.map<Node>((table) => {
 						const tableId = createTableId(table);
-						const { width, height } = tableSizes[tableId] || {};
+						const { width, height } = tableSizesRef.current[tableId] || {};
 						return {
 							id: tableId,
 							type: "table",
@@ -83,11 +85,6 @@ const DbmlRenderer = (props: Props) => {
 						const sourceHandle = `field-${sourceFieldId}-source`;
 						const targetHandle = `field-${targetFieldId}-target`;
 						const refId = createRelationId(ref);
-						const animated = animatedEdges.some((edge) => edge.id === refId);
-						const className = clsx(
-							styles.edge,
-							animated && styles.edgeAnimated,
-						);
 						return {
 							id: refId,
 							source: createTableId(sourceTable),
@@ -96,8 +93,8 @@ const DbmlRenderer = (props: Props) => {
 							targetHandle,
 							type: "step",
 							data: { ref },
-							animated,
-							className: className,
+							animated: false,
+							className: styles.edge,
 						};
 					});
 					return {
@@ -110,7 +107,7 @@ const DbmlRenderer = (props: Props) => {
 
 			return data;
 		},
-		[tableSizes, animatedEdges],
+		[],
 	);
 	const getLayoutedElements = useCallback(
 		(nodes: Node[], edges: Edge[], direction = "TB") => {
@@ -124,7 +121,7 @@ const DbmlRenderer = (props: Props) => {
 			});
 
 			nodes.forEach((node) => {
-				const tableSize = tableSizes[node.id] || {
+				const tableSize = tableSizesRef.current[node.id] || {
 					width: nodeWidth,
 					height: nodeHeight,
 				};
@@ -179,7 +176,7 @@ const DbmlRenderer = (props: Props) => {
 
 			return { nodes: layoutedNodes, edges: newEdges };
 		},
-		[tableSizes],
+		[],
 	);
 	useEffect(() => {
 		if (!database) {
@@ -195,6 +192,19 @@ const DbmlRenderer = (props: Props) => {
 		setNodes(layoutedNodes);
 		setEdges(layoutedEdges);
 	}, [database, createNodesAndEdges, getLayoutedElements, setEdges, setNodes]);
+
+	useEffect(() => {
+		setEdges((prev) =>
+			prev.map((edge) => {
+				const animated = animatedEdges.some((e) => e.id === edge.id);
+				return {
+					...edge,
+					animated,
+					className: clsx(styles.edge, animated && styles.edgeAnimated),
+				};
+			}),
+		);
+	}, [animatedEdges, setEdges]);
 
 	// useEffect(() => {
 	// 	if (!reactFlowInstance.current) {
