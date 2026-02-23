@@ -1,8 +1,9 @@
 import dagre from "@dagrejs/dagre";
-import { Parser } from "@dbml/core";
+import { Parser, type CompilerDiagnostics } from "@dbml/core";
 import type Database from "@dbml/core/types/model_structure/database";
 import {
 	Background,
+	ControlButton,
 	Controls,
 	type Edge,
 	MiniMap,
@@ -13,6 +14,7 @@ import {
 } from "@xyflow/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FaCompress, FaExpand } from "react-icons/fa6";
 import Table from "./components/Table";
 import {
 	DbmlRendererContext,
@@ -49,11 +51,17 @@ const DbmlRenderer = (props: Props) => {
 	const [animatedEdges, setAnimatedEdges] = useState<Edge[]>([]);
 	const database = useMemo(() => {
 		try {
-			const ast = Parser.parse(content, "dbmlv2");
-			return ast;
+			const db = Parser.parse(content, "dbmlv2");
+			return { db, error: null };
 		} catch (e) {
-			console.error(e);
-			return null;
+			const compilerError = e as CompilerDiagnostics;
+			if (Array.isArray(compilerError?.diags)) {
+				const error = compilerError.diags
+					.map((d) => `[${d.location.start.line}:${d.location.start.column}]: ${d.message}`)
+					.join("\n");
+				return { db: null, error };
+			}
+			return { db: null, error: e instanceof Error ? e.message : "Invalid DBML" };
 		}
 	}, [content]);
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -178,11 +186,11 @@ const DbmlRenderer = (props: Props) => {
 		[],
 	);
 	useEffect(() => {
-		if (!database) {
+		if (!database.db) {
 			setNodes([]);
 			return;
 		}
-		const { nodes: newNodes, edges: newEdges } = createNodesAndEdges(database);
+		const { nodes: newNodes, edges: newEdges } = createNodesAndEdges(database.db);
 
 		const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
 			newNodes,
@@ -205,6 +213,21 @@ const DbmlRenderer = (props: Props) => {
 		);
 	}, [animatedEdges, setEdges]);
 
+	const containerRef = useRef<HTMLDivElement>(null);
+	const [isFullscreen, setIsFullscreen] = useState(false);
+	useEffect(() => {
+		const handler = () => setIsFullscreen(!!document.fullscreenElement);
+		document.addEventListener("fullscreenchange", handler);
+		return () => document.removeEventListener("fullscreenchange", handler);
+	}, []);
+	const toggleFullscreen = useCallback(() => {
+		if (!document.fullscreenElement) {
+			containerRef.current?.requestFullscreen();
+		} else {
+			document.exitFullscreen();
+		}
+	}, []);
+
 	const setTable = useCallback((id: string, dimension: Dimension) => {
 		setTables((prev) => ({ ...prev, [id]: dimension }));
 	}, []);
@@ -224,19 +247,33 @@ const DbmlRenderer = (props: Props) => {
 		<DbmlRendererContext
 			value={contextValue}
 		>
-			<div className={styles.container}>
-				<ReactFlow
-					nodes={nodes}
-					onNodesChange={onNodesChange}
-					edges={edges}
-					fitView
-					nodeTypes={nodeTypes}
-					colorMode="system"
-				>
-					<Background />
-					<Controls />
-					<MiniMap />
-				</ReactFlow>
+			<div className={styles.container} ref={containerRef}>
+				{database.error ? (
+					<div className={styles.error}>
+						<div>
+							<p>Failed to parse DBML:</p>
+							{database.error}
+
+						</div>
+					</div>
+				) : (
+					<ReactFlow
+						nodes={nodes}
+						onNodesChange={onNodesChange}
+						edges={edges}
+						fitView
+						nodeTypes={nodeTypes}
+						colorMode="system"
+					>
+						<Background />
+						<Controls>
+							<ControlButton onClick={toggleFullscreen} title="Toggle fullscreen">
+								{isFullscreen ? <FaCompress /> : <FaExpand />}
+							</ControlButton>
+						</Controls>
+						<MiniMap />
+					</ReactFlow>
+				)}
 			</div>
 		</DbmlRendererContext>
 	);

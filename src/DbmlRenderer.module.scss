@@ -3,6 +3,19 @@
   width: 100%;
 }
 
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 1rem;
+  color: var(--xy-node-color-default);
+  font-family: monospace;
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
 .edge {
   path {
     stroke: var(--xy-edge-stroke-default);
