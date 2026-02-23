@@ -56,7 +56,6 @@ const DbmlRenderer = (props: Props) => {
 			return null;
 		}
 	}, [content]);
-	const ref = useRef(null);
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
 	const [edges, setEdges] = useEdgesState<Edge>([]);
 	const createNodesAndEdges = useCallback(
@@ -231,7 +230,6 @@ const DbmlRenderer = (props: Props) => {
 					onNodesChange={onNodesChange}
 					edges={edges}
 					fitView
-					ref={ref}
 					nodeTypes={nodeTypes}
 					colorMode="system"
 				>
