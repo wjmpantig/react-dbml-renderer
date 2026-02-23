@@ -8,7 +8,6 @@ import {
 	MiniMap,
 	type Node,
 	ReactFlow,
-	type ReactFlowInstance,
 	useEdgesState,
 	useNodesState,
 } from "@xyflow/react";
@@ -21,6 +20,7 @@ import {
 	type Dimension,
 } from "./contexts/DbmlRendererContext";
 import styles from "./DbmlRenderer.module.scss";
+import type { DbmlTable } from "./types";
 import { createRelationId, createTableId } from "./utils/ids";
 
 type Props = {
@@ -47,7 +47,6 @@ const DbmlRenderer = (props: Props) => {
 	const tableSizesRef = useRef(tableSizes);
 	tableSizesRef.current = tableSizes;
 	const [animatedEdges, setAnimatedEdges] = useState<Edge[]>([]);
-	const reactFlowInstance = useRef<null | ReactFlowInstance>(null);
 	const database = useMemo(() => {
 		try {
 			const ast = Parser.parse(content, "dbmlv2");
@@ -121,9 +120,10 @@ const DbmlRenderer = (props: Props) => {
 			});
 
 			nodes.forEach((node) => {
-				const tableSize = tableSizesRef.current[node.id] || {
+				const tableSize = tableSizesRef.current[node.id] ?? {
 					width: nodeWidth,
-					height: nodeHeight,
+					// header row + one row per field
+					height: nodeHeight * ((node.data as { table: DbmlTable }).table.fields.length + 1),
 				};
 				dagreGraph.setNode(node.id, tableSize);
 			});
@@ -206,16 +206,6 @@ const DbmlRenderer = (props: Props) => {
 		);
 	}, [animatedEdges, setEdges]);
 
-	// useEffect(() => {
-	// 	if (!reactFlowInstance.current) {
-	// 		return;
-	// 	}
-	// 	reactFlowInstance.current.fitView({
-	// 		nodes,
-	// 	});
-	// 	console.log("fit view");
-	// }, [nodes]);
-
 	return (
 		<DbmlRendererContext
 			value={{
@@ -252,9 +242,6 @@ const DbmlRenderer = (props: Props) => {
 					ref={ref}
 					nodeTypes={nodeTypes}
 					colorMode="system"
-					onInit={(instance) => {
-						reactFlowInstance.current = instance;
-					}}
 				>
 					<Background />
 					<Controls />
