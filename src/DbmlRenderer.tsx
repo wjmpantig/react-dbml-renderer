@@ -206,32 +206,24 @@ const DbmlRenderer = (props: Props) => {
 		);
 	}, [animatedEdges, setEdges]);
 
+	const setTable = useCallback((id: string, dimension: Dimension) => {
+		setTables((prev) => ({ ...prev, [id]: dimension }));
+	}, []);
+	const addAnimatedEdges = useCallback((edges: Edge[]) => {
+		setAnimatedEdges((prev) => [...prev, ...edges]);
+	}, []);
+	const removeAnimatedEdges = useCallback((edges: Edge[]) => {
+		const ids = edges.map((edge) => edge.id);
+		setAnimatedEdges((prev) => prev.filter((edge) => !ids.includes(edge.id)));
+	}, []);
+	const contextValue = useMemo(
+		() => ({ tables: tableSizes, setTable, refs: edges, animatedEdges, addAnimatedEdges, removeAnimatedEdges }),
+		[tableSizes, setTable, edges, animatedEdges, addAnimatedEdges, removeAnimatedEdges],
+	);
+
 	return (
 		<DbmlRendererContext
-			value={{
-				tables: tableSizes,
-				setTable: (id: string, dimension: Dimension) => {
-					setTables((prev) => {
-						const newValue = {
-							...prev,
-							[id]: dimension,
-						};
-
-						return newValue;
-					});
-				},
-				refs: edges,
-				animatedEdges,
-				addAnimatedEdges: (edges) => {
-					setAnimatedEdges((prev) => [...prev, ...edges]);
-				},
-				removeAnimatedEdges: (edges) => {
-					const ids = edges.map((edge) => edge.id);
-					setAnimatedEdges((prev) =>
-						prev.filter((edge) => !ids.includes(edge.id)),
-					);
-				},
-			}}
+			value={contextValue}
 		>
 			<div className={styles.container}>
 				<ReactFlow
