@@ -164,10 +164,10 @@ const DbmlRenderer = (props: Props) => {
 				const { x: targetX } = targetNode.position;
 				const newEdge = { ...edge };
 
-				if (sourceX >= targetX) {
+				if (sourceX > targetX) {
 					newEdge.sourceHandle = `${edge.sourceHandle}-left`;
 					newEdge.targetHandle = `${edge.targetHandle}-right`;
-				} else if (sourceX < targetX) {
+				} else {
 					newEdge.sourceHandle = `${edge.sourceHandle}-right`;
 					newEdge.targetHandle = `${edge.targetHandle}-left`;
 				}
