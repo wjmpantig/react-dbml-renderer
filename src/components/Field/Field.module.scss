@@ -15,19 +15,19 @@
   background: none;
   border: 1px solid transparent;
   transition: all 0.2s;
+  color: inherit;
 
   cursor: inherit;
 
   &:hover {
-    border-color: var(--xy-node-border-default);
-
+    border-color: var(--dbml-field-border-hover);
   }
 
   justify-content: space-between;
 }
 
 .field-highlighted {
-  border-color: var(--xy-node-border-default);
+  border-color: var(--dbml-field-border-hover);
   // border-width: 2px;
   border-style: dashed;
 }
@@ -56,10 +56,9 @@
 
 .note {
   position: absolute;
-  border: 1px solid;
-  border-color: var(--xy-node-border-default);
-  background: var(--xy-node-background-color-default);
-  color: var(--xy-node-color-default);
+  border: 1px solid var(--dbml-node-border-color);
+  background: var(--dbml-node-bg);
+  color: var(--dbml-node-color);
   width: max-content;
   padding: 1rem;
   z-index: 10;
@@ -79,8 +78,9 @@
   position: absolute;
   top: 0;
   left: calc(100% + 0.25rem);
-  border: 1px solid white;
-  background-color: var(--xy-node-background-color-default);
+  border: 1px solid var(--dbml-node-border-color);
+  background-color: var(--dbml-node-bg);
+  color: var(--dbml-node-color);
   font-size: smaller;
 
 }
@@ -88,7 +88,7 @@
 .details-field-name {
   padding-inline: 1rem;
   z-index: 99;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid var(--dbml-node-border-color);
 }
 
 .details-content {

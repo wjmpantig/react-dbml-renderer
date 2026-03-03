@@ -27,6 +27,7 @@ import { createRelationId, createTableId } from "./utils/ids";
 
 type Props = {
 	content: string;
+	colorMode?: "light" | "dark" | "system";
 };
 
 type NodesEdges = {
@@ -42,7 +43,7 @@ const nodeTypes = {
 };
 
 const DbmlRenderer = (props: Props) => {
-	const { content } = props;
+	const { content, colorMode = "system" } = props;
 	const [tableSizes, setTables] = useState<DbmlRendererContextValue["tables"]>(
 		{},
 	);
@@ -123,7 +124,7 @@ const DbmlRenderer = (props: Props) => {
 			dagreGraph.setGraph({
 				rankdir: direction, // top-bottom or left-right
 				nodesep: 50 * 3, // space between nodes in the same rank
-				ranksep: 50 * 3, // space between rows/columns
+				ranksep: 50, // space between rows/columns
 			});
 
 			nodes.forEach((node) => {
@@ -263,7 +264,7 @@ const DbmlRenderer = (props: Props) => {
 						edges={edges}
 						fitView
 						nodeTypes={nodeTypes}
-						colorMode="system"
+						colorMode={colorMode}
 					>
 						<Background />
 						<Controls>

@@ -1,6 +1,20 @@
 .container {
   height: 100%;
   width: 100%;
+
+  // Light mode defaults — same blue-indigo hue as dark theme, high lightness
+  --dbml-node-bg: #f5f5fb;
+  --dbml-node-color: #1a1a2e;
+  --dbml-node-border-color: #c4c4d8;
+  --dbml-field-border-hover: #7070a8;
+
+  // Override when React Flow's .dark class is active (nodes live inside it)
+  :global(.react-flow.dark) {
+    --dbml-node-bg: #1e1e2e;
+    --dbml-node-color: #f8f8f8;
+    --dbml-node-border-color: rgba(255, 255, 255, 0.15);
+    --dbml-field-border-hover: rgba(255, 255, 255, 0.5);
+  }
 }
 
 .error {

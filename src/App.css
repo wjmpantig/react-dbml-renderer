@@ -39,6 +39,50 @@
 }
 
 .app {
+	position: relative;
 	width: 100vw;
 	height: 100vh;
+}
+
+.app[data-theme="light"] {
+	background: #eeeef6;
+}
+
+.app[data-theme="dark"] {
+	background: #141414;
+}
+
+.theme-toggle {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.app[data-theme="light"] .theme-toggle {
+	border: 1px solid #c4c4d8;
+	background: #f5f5fb;
+	color: #1a1a2e;
+}
+
+.app[data-theme="light"] .theme-toggle:hover {
+	background: #f0f0f0;
+}
+
+.app[data-theme="dark"] .theme-toggle {
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: #2a2a3e;
+	color: #f8f8f8;
+}
+
+.app[data-theme="dark"] .theme-toggle:hover {
+	background: #3a3a50;
 }

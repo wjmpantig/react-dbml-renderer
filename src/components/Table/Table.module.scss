@@ -1,15 +1,13 @@
 .table {
-  border: 1px solid white;
-  border-color: var(--xy-node-border-default);
-  background-color: var(--xy-node-background-color-default);
-  color: var(--xy-node-color-default);
+  border: 1px solid var(--dbml-node-border-color);
+  background-color: var(--dbml-node-bg);
+  color: var(--dbml-node-color);
   padding-bottom: 0.5rem;
 }
 
 .header {
   font-weight: bold;
-  border-bottom: 2px solid;
-  border-color: var(--xy-node-border-default);
+  border-bottom: 2px solid var(--dbml-node-border-color);
   padding-inline: 1rem;
   padding-block: 0.5rem;
   white-space: nowrap;

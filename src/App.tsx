@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { FaMoon, FaSun } from "react-icons/fa6";
 import DbmlRenderer from "./DbmlRenderer";
 import "@xyflow/react/dist/style.css";
 import "./App.css";
@@ -293,12 +295,19 @@ Ref: public.users.id < public.users.referrer_id
 Ref: payments.payment_intents.id < payments.payment_events.payment_intent_id
   `;
 function App() {
+	const [theme, setTheme] = useState<"light" | "dark">("light");
 	return (
-		<>
-			<div className="app">
-				<DbmlRenderer content={DEFAULT} />
-			</div>
-		</>
+		<div className="app" data-theme={theme}>
+			<button
+				type="button"
+				className="theme-toggle"
+				onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
+				title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+			>
+				{theme === "light" ? <FaMoon /> : <FaSun />}
+			</button>
+			<DbmlRenderer content={DEFAULT} colorMode={theme} />
+		</div>
 	);
 }
 
