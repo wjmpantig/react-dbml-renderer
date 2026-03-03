@@ -123,8 +123,8 @@ const DbmlRenderer = (props: Props) => {
 			);
 			dagreGraph.setGraph({
 				rankdir: direction, // top-bottom or left-right
-				nodesep: 50 * 3, // space between nodes in the same rank
-				ranksep: 50, // space between rows/columns
+				nodesep: 75, // space between nodes in the same rank
+				ranksep: 25, // space between rows/columns
 			});
 
 			nodes.forEach((node) => {
