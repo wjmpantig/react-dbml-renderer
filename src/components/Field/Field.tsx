@@ -108,7 +108,7 @@ const Field = (props: Props) => {
 				{handles}
 				<div className={styles.properties}>
 					<span className={styles.dataType}>
-						<code>{type?.type_name}</code>
+						<code className={styles.code}>{type?.type_name}</code>
 					</span>
 					{!!_enum && <span title="Enum">E</span>}
 					{not_null && <span title="Not null">NN</span>}
@@ -125,7 +125,7 @@ const Field = (props: Props) => {
 									{_enum.values.map((value) => {
 										return (
 											<li key={value.id}>
-												<code>{value.name}</code>
+												<code className={styles.code}>{value.name}</code>
 											</li>
 										);
 									})}
@@ -135,7 +135,7 @@ const Field = (props: Props) => {
 						{note && <div>{note}</div>}
 						{dbdefault && (
 							<div className={styles.nowrap}>
-								DEFAULT <code>{dbdefault?.value}</code>
+								DEFAULT <code className={styles.code}>{dbdefault?.value}</code>
 							</div>
 						)}
 					</div>

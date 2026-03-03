@@ -12,10 +12,13 @@
   padding: 0.1rem 1rem;
   width: 100%;
   align-items: center;
+  appearance: none;
   background: none;
   border: 1px solid transparent;
-  transition: all 0.2s;
+  border-radius: 0;
+  font: inherit;
   color: inherit;
+  transition: all 0.2s;
 
   cursor: inherit;
 
@@ -72,6 +75,14 @@
 
 .data-type {
   font-size: smaller;
+}
+
+.code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8em;
+  background: var(--dbml-code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
 }
 
 .details {
