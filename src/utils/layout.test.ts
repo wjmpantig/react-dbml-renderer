@@ -15,7 +15,7 @@ Table posts {
 const db = Parser.parse(DBML, "dbmlv2");
 
 const layout = (sizes = {}) => {
-	const { nodes, edges } = createNodesAndEdges(db, sizes);
+	const { nodes, edges } = createNodesAndEdges(db);
 	return getLayoutedElements(nodes, edges, sizes);
 };
 
@@ -62,5 +62,8 @@ test("measured sizes drive the layout instead of the fallback estimate", () => {
 	};
 	// fallback would be 36 * (fields + 1); a measured 400px node must push further
 	expect(gap(tall)).toBeGreaterThan(gap(layout()));
-	expect(tall.nodes.every((n) => n.height === 400)).toBe(true);
+	// sizes must not be written onto the nodes: React Flow would pin the table
+	// to them and its rows could no longer widen it
+	expect(tall.nodes.every((n) => n.width === undefined)).toBe(true);
+	expect(tall.nodes.every((n) => n.height === undefined)).toBe(true);
 });

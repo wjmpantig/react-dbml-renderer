@@ -84,7 +84,6 @@ const DbmlRenderer = (props: Props) => {
 		}
 		const { nodes: newNodes, edges: newEdges } = createNodesAndEdges(
 			database.db,
-			tableSizes,
 			styles.edge,
 		);
 		const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(

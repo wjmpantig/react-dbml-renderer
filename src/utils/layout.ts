@@ -26,19 +26,15 @@ const getNodeSize = (node: Node, sizes: TableSizes): Dimension =>
 
 export const createNodesAndEdges = (
 	database: Database,
-	sizes: TableSizes = {},
 	edgeClassName?: string,
 ): NodesEdges =>
 	database.schemas.reduce<NodesEdges>(
 		({ nodes, edges }, schema) => {
 			const newNodes = schema.tables.map<Node>((table) => {
 				const tableId = createTableId(table);
-				const { width, height } = sizes[tableId] || {};
 				return {
 					id: tableId,
 					type: "table",
-					width,
-					height,
 					position: { x: 0, y: 0 },
 					data: { table },
 					draggable: true,
@@ -93,10 +89,10 @@ export const getLayoutedElements = (
 	const layoutedNodes = nodes.map((node) => {
 		const { x, y } = dagreGraph.node(node.id);
 		const { width, height } = getNodeSize(node, sizes);
+		// no width/height on the node itself: that would pin it to the estimate and
+		// stop the table from sizing to its own rows
 		return {
 			...node,
-			width,
-			height,
 			// dagre positions nodes by their center, React Flow by their top-left
 			position: { x: x - width / 2, y: y - height / 2 },
 		};
