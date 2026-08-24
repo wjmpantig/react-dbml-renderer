@@ -11,8 +11,8 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { FaKey, FaNoteSticky } from "react-icons/fa6";
 import { useDbmlRendererContext } from "../../contexts/DbmlRendererContext";
+import { KeyIcon, NoteIcon } from "../icons";
 import Relation from "../Relation/Relation";
 import styles from "./Field.module.scss";
 
@@ -94,8 +94,8 @@ const Field = (props: Props) => {
 						title={note}
 					>
 						{name}
-						{pk && <FaKey className={styles.icon} />}
-						{note && <FaNoteSticky className={styles.icon} />}
+						{pk && <KeyIcon className={styles.icon} />}
+						{note && <NoteIcon className={styles.icon} />}
 					</span>
 				</div>
 				{handles}

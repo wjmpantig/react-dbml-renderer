@@ -13,7 +13,7 @@ import {
 } from "@xyflow/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FaCompress, FaExpand } from "react-icons/fa6";
+import { CompressIcon, ExpandIcon } from "./components/icons";
 import Table from "./components/Table";
 import {
 	DbmlRendererContext,
@@ -188,7 +188,7 @@ const DbmlRenderer = (props: Props) => {
 								onClick={toggleFullscreen}
 								title="Toggle fullscreen"
 							>
-								{isFullscreen ? <FaCompress /> : <FaExpand />}
+								{isFullscreen ? <CompressIcon /> : <ExpandIcon />}
 							</ControlButton>
 						</Controls>
 						<MiniMap />
