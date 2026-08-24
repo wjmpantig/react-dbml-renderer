@@ -1,5 +1,6 @@
 import dagre from "@dagrejs/dagre";
 import type Database from "@dbml/core/types/model_structure/database";
+import type Ref from "@dbml/core/types/model_structure/ref";
 import type { Edge, Node } from "@xyflow/react";
 import type { Dimension } from "../contexts/DbmlRendererContext";
 import type { DbmlTable } from "../types";
@@ -8,6 +9,21 @@ import { createRelationId, createTableId } from "./ids";
 export type NodesEdges = {
 	nodes: Node[];
 	edges: Edge[];
+};
+
+// Everything a field needs to draw its handles, resolved once per layout so no
+// field has to scan the whole edge list.
+export type FieldEdge = {
+	id: string;
+	handleId: string;
+	handleType: "source" | "target";
+	position: "left" | "right";
+	relation: string;
+};
+
+export type TableData = {
+	table: DbmlTable;
+	fieldEdges: Record<string, FieldEdge[]>;
 };
 
 export type TableSizes = Record<string, Dimension>;
@@ -20,8 +36,7 @@ const getNodeSize = (node: Node, sizes: TableSizes): Dimension =>
 		width: DEFAULT_NODE_WIDTH,
 		// header row + one row per field
 		height:
-			DEFAULT_ROW_HEIGHT *
-			((node.data as { table: DbmlTable }).table.fields.length + 1),
+			DEFAULT_ROW_HEIGHT * ((node.data as TableData).table.fields.length + 1),
 	};
 
 export const createNodesAndEdges = (
@@ -36,7 +51,7 @@ export const createNodesAndEdges = (
 					id: tableId,
 					type: "table",
 					position: { x: 0, y: 0 },
-					data: { table },
+					data: { table, fieldEdges: {} } satisfies TableData,
 					draggable: true,
 				};
 			});
@@ -101,6 +116,18 @@ export const getLayoutedElements = (
 	const positions = new Map(
 		layoutedNodes.map((node) => [node.id, node.position]),
 	);
+	// tableId -> fieldId -> the handles that table's field has to render
+	const fieldEdges: Record<string, Record<string, FieldEdge[]>> = {};
+	const addFieldEdge = (
+		tableId: string,
+		fieldId: string,
+		fieldEdge: FieldEdge,
+	) => {
+		const table = fieldEdges[tableId] ?? {};
+		fieldEdges[tableId] = table;
+		table[fieldId] = [...(table[fieldId] ?? []), fieldEdge];
+	};
+
 	const newEdges = edges.map((edge) => {
 		const source = positions.get(edge.source);
 		const target = positions.get(edge.target);
@@ -109,12 +136,38 @@ export const getLayoutedElements = (
 		}
 		const [from, to] =
 			source.x > target.x ? ["left", "right"] : ["right", "left"];
-		return {
+		const newEdge = {
 			...edge,
 			sourceHandle: `${edge.sourceHandle}-${from}`,
 			targetHandle: `${edge.targetHandle}-${to}`,
 		};
+
+		const ref = edge.data?.ref as Ref | undefined;
+		if (ref) {
+			const [sourceEndpoint, targetEndpoint] = ref.endpoints;
+			addFieldEdge(edge.source, `${sourceEndpoint.fields[0].id}`, {
+				id: edge.id,
+				handleId: newEdge.sourceHandle,
+				handleType: "source",
+				position: from as FieldEdge["position"],
+				relation: sourceEndpoint.relation,
+			});
+			addFieldEdge(edge.target, `${targetEndpoint.fields[0].id}`, {
+				id: edge.id,
+				handleId: newEdge.targetHandle,
+				handleType: "target",
+				position: to as FieldEdge["position"],
+				relation: targetEndpoint.relation,
+			});
+		}
+
+		return newEdge;
 	});
 
-	return { nodes: layoutedNodes, edges: newEdges };
+	const nodesWithEdges = layoutedNodes.map((node) => ({
+		...node,
+		data: { ...node.data, fieldEdges: fieldEdges[node.id] ?? {} },
+	}));
+
+	return { nodes: nodesWithEdges, edges: newEdges };
 };

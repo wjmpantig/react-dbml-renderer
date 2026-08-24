@@ -1,4 +1,3 @@
-import type { Edge } from "@xyflow/react";
 import { createContext, useContext } from "react";
 export type Dimension = {
 	width: number;
@@ -8,19 +7,17 @@ export type DbmlRendererContextValue = {
 	tables: {
 		[key: string]: Dimension;
 	};
-	refs: Edge[];
 	setTable: (id: string, node: Dimension) => void;
-	animatedEdges: Edge[];
-	addAnimatedEdges: (edges: Edge[]) => void;
-	removeAnimatedEdges: (edges: Edge[]) => void;
+	animatedEdgeIds: ReadonlySet<string>;
+	addAnimatedEdges: (ids: string[]) => void;
+	removeAnimatedEdges: (ids: string[]) => void;
 };
 export const DbmlRendererContext = createContext<DbmlRendererContextValue>({
 	tables: {},
 	setTable: () => {},
-	animatedEdges: [],
+	animatedEdgeIds: new Set(),
 	addAnimatedEdges: () => {},
 	removeAnimatedEdges: () => {},
-	refs: [],
 });
 
 export const useDbmlRendererContext = () => {

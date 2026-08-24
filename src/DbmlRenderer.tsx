@@ -50,7 +50,9 @@ const DbmlRenderer = (props: Props) => {
 	const [tableSizes, setTables] = useState<DbmlRendererContextValue["tables"]>(
 		{},
 	);
-	const [animatedEdges, setAnimatedEdges] = useState<Edge[]>([]);
+	const [animatedEdgeIds, setAnimatedEdgeIds] = useState<ReadonlySet<string>>(
+		new Set(),
+	);
 	const database = useMemo(() => {
 		try {
 			const db = Parser.parse(content, "dbmlv2");
@@ -97,17 +99,22 @@ const DbmlRenderer = (props: Props) => {
 	}, [database, tableSizes, setEdges, setNodes]);
 
 	useEffect(() => {
-		setEdges((prev) =>
-			prev.map((edge) => {
-				const animated = animatedEdges.some((e) => e.id === edge.id);
+		setEdges((prev) => {
+			// only the edges whose state actually flipped get new objects
+			let changed = false;
+			const next = prev.map((edge) => {
+				const animated = animatedEdgeIds.has(edge.id);
+				if (animated === !!edge.animated) return edge;
+				changed = true;
 				return {
 					...edge,
 					animated,
 					className: clsx(styles.edge, animated && styles.edgeAnimated),
 				};
-			}),
-		);
-	}, [animatedEdges, setEdges]);
+			});
+			return changed ? next : prev;
+		});
+	}, [animatedEdgeIds, setEdges]);
 
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [isFullscreen, setIsFullscreen] = useState(false);
@@ -136,27 +143,35 @@ const DbmlRenderer = (props: Props) => {
 			return { ...prev, [id]: dimension };
 		});
 	}, []);
-	const addAnimatedEdges = useCallback((edges: Edge[]) => {
-		setAnimatedEdges((prev) => [...prev, ...edges]);
+	const addAnimatedEdges = useCallback((ids: string[]) => {
+		setAnimatedEdgeIds((prev) => {
+			// same set, same identity: a new Set here would re-render every field
+			if (ids.every((id) => prev.has(id))) return prev;
+			const next = new Set(prev);
+			for (const id of ids) next.add(id);
+			return next;
+		});
 	}, []);
-	const removeAnimatedEdges = useCallback((edges: Edge[]) => {
-		const ids = edges.map((edge) => edge.id);
-		setAnimatedEdges((prev) => prev.filter((edge) => !ids.includes(edge.id)));
+	const removeAnimatedEdges = useCallback((ids: string[]) => {
+		setAnimatedEdgeIds((prev) => {
+			if (!ids.some((id) => prev.has(id))) return prev;
+			const next = new Set(prev);
+			for (const id of ids) next.delete(id);
+			return next;
+		});
 	}, []);
 	const contextValue = useMemo(
 		() => ({
 			tables: tableSizes,
 			setTable,
-			refs: edges,
-			animatedEdges,
+			animatedEdgeIds,
 			addAnimatedEdges,
 			removeAnimatedEdges,
 		}),
 		[
 			tableSizes,
 			setTable,
-			edges,
-			animatedEdges,
+			animatedEdgeIds,
 			addAnimatedEdges,
 			removeAnimatedEdges,
 		],

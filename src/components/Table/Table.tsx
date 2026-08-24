@@ -1,19 +1,20 @@
 import type { Node } from "@xyflow/react";
 import { useEffect, useRef } from "react";
 import { useDbmlRendererContext } from "../../contexts/DbmlRendererContext";
-import type { DbmlTable } from "../../types";
 import { createTableId } from "../../utils/ids";
+import type { FieldEdge, TableData } from "../../utils/layout";
 import Field from "../Field";
 import styles from "./Table.module.scss";
 
+// stable identity: a fresh [] per render would re-run every field's effect
+const NO_EDGES: FieldEdge[] = [];
+
 type Props = Partial<Node> & {
-	data: {
-		table: DbmlTable;
-	};
+	data: TableData;
 };
 const Table = (props: Props) => {
 	const {
-		data: { table },
+		data: { table, fieldEdges },
 	} = props;
 	const ref = useRef<HTMLDivElement>(null);
 	const { setTable } = useDbmlRendererContext();
@@ -39,7 +40,13 @@ const Table = (props: Props) => {
 		<div className={styles.table} ref={ref}>
 			<div className={styles.header}>{`${schema.name}.${name}`}</div>
 			{fields.map((field) => {
-				return <Field field={field} key={field.id} />;
+				return (
+					<Field
+						field={field}
+						edges={fieldEdges[field.id] ?? NO_EDGES}
+						key={field.id}
+					/>
+				);
 			})}
 		</div>
 	);

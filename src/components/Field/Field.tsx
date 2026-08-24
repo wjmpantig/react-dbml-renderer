@@ -1,82 +1,42 @@
-import type Endpoint from "@dbml/core/types/model_structure/endpoint";
 import type DbmlField from "@dbml/core/types/model_structure/field";
-import type Ref from "@dbml/core/types/model_structure/ref";
-import { type HandleType, Position, useEdges } from "@xyflow/react";
+import { Position } from "@xyflow/react";
 import clsx from "clsx";
-import {
-	type HTMLAttributes,
-	type ReactNode,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { type HTMLAttributes, useEffect, useMemo, useState } from "react";
 import { useDbmlRendererContext } from "../../contexts/DbmlRendererContext";
+import type { FieldEdge } from "../../utils/layout";
 import { KeyIcon, NoteIcon } from "../icons";
 import Relation from "../Relation/Relation";
 import styles from "./Field.module.scss";
 
 type Props = HTMLAttributes<HTMLDivElement> & {
 	field: DbmlField;
+	edges: FieldEdge[];
 };
 
 const Field = (props: Props) => {
-	const { field } = props;
-	const { name, type, not_null, pk, note, id, _enum, dbdefault } = field;
-	const edges = useEdges();
+	const { field, edges } = props;
+	const { name, type, not_null, pk, note, _enum, dbdefault } = field;
 
-	const handleIdPrefix = `field-${id}-`;
-	const connectedEdges = edges.filter(
-		(edge) =>
-			edge.sourceHandle?.startsWith(handleIdPrefix) ||
-			edge.targetHandle?.startsWith(handleIdPrefix),
-	);
-	// connectedEdges is a fresh array every render; key effects/memos off the ids
-	const connectedEdgeIds = connectedEdges.map((edge) => edge.id).join("|");
-	const connectedEdgesRef = useRef(connectedEdges);
-	connectedEdgesRef.current = connectedEdges;
-
-	// hover or keyboard focus: both reveal the details panel and the relations
+	// hover or keyboard focus: both reveal the details panel
 	const [active, setActive] = useState(false);
-	const { animatedEdges, addAnimatedEdges, removeAnimatedEdges } =
+	const { animatedEdgeIds, addAnimatedEdges, removeAnimatedEdges } =
 		useDbmlRendererContext();
-	const handles = connectedEdges.map<ReactNode>((edge) => {
-		const regex = /field-\d+-(source|target)-(left|right)/;
-		const isSource = edge.sourceHandle?.startsWith(handleIdPrefix);
-		const { sourceHandle, targetHandle } = edge;
-		const handleId = isSource ? sourceHandle : targetHandle;
-		const [, handleType, position] = handleId?.match(regex) || [];
-		const ref = edge.data?.ref as Ref;
-		if (!ref) {
-			return null;
-		}
-		const [source, target] = ref.endpoints;
-		const isTarget = handleType === "target";
-		const endpoint: Endpoint = isTarget ? target : source;
-		return (
-			<Relation
-				key={edge.id}
-				id={handleId}
-				type={handleType as HandleType}
-				position={position === "left" ? Position.Left : Position.Right}
-				relation={endpoint.relation}
-			/>
-		);
-	});
+
+	const edgeIds = useMemo(() => edges.map((edge) => edge.id), [edges]);
 	const hasDetails = !!note || !!_enum || !!dbdefault;
-	// biome-ignore lint/correctness/useExhaustiveDependencies: connectedEdgeIds is the re-run trigger for the ref read below
+
 	useEffect(() => {
 		if (!active) return;
-		// snapshot: the cleanup must remove exactly what this run added, even if
-		// the edges changed or the field unmounted while hovered
-		const added = connectedEdgesRef.current;
-		addAnimatedEdges(added);
-		return () => removeAnimatedEdges(added);
-	}, [active, connectedEdgeIds, addAnimatedEdges, removeAnimatedEdges]);
-	const highlighted = useMemo(() => {
-		const ids = new Set(connectedEdgeIds.split("|"));
-		return animatedEdges.some((edge) => ids.has(edge.id));
-	}, [animatedEdges, connectedEdgeIds]);
+		addAnimatedEdges(edgeIds);
+		// remove exactly what this run added, even if the field unmounts hovered
+		return () => removeAnimatedEdges(edgeIds);
+	}, [active, edgeIds, addAnimatedEdges, removeAnimatedEdges]);
+
+	const highlighted = useMemo(
+		() => edgeIds.some((id) => animatedEdgeIds.has(id)),
+		[animatedEdgeIds, edgeIds],
+	);
+
 	return (
 		<div className={styles.fieldContainer}>
 			<button
@@ -105,7 +65,15 @@ const Field = (props: Props) => {
 					{not_null && <span title="Not null">NN</span>}
 				</div>
 			</button>
-			{handles}
+			{edges.map((edge) => (
+				<Relation
+					key={`${edge.id}-${edge.handleType}`}
+					id={edge.handleId}
+					type={edge.handleType}
+					position={edge.position === "left" ? Position.Left : Position.Right}
+					relation={edge.relation}
+				/>
+			))}
 			{hasDetails && active && (
 				<aside className={styles.details}>
 					<div className={styles.detailsFieldName}>{name}</div>

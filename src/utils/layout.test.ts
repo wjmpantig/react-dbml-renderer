@@ -39,6 +39,27 @@ test("suffixes handles with the side each edge leaves from", () => {
 	);
 });
 
+test("resolves the handles each field has to render", () => {
+	const { nodes, edges } = layout();
+	const data = (id: string) =>
+		nodes.find((n) => n.id === id)?.data as {
+			fieldEdges: Record<string, { handleId: string; handleType: string }[]>;
+		};
+	const posts = Object.values(data("table-2").fieldEdges).flat();
+	const users = Object.values(data("table-1").fieldEdges).flat();
+	// one ref: one handle on each side of it, and nothing else resolved
+	expect(posts).toHaveLength(1);
+	expect(users).toHaveLength(1);
+	expect([users[0].handleType, posts[0].handleType].sort()).toEqual([
+		"source",
+		"target",
+	]);
+	// the handle ids must be the ones the edges actually point at
+	const handles = [edges[0].sourceHandle, edges[0].targetHandle];
+	expect(handles).toContain(users[0].handleId);
+	expect(handles).toContain(posts[0].handleId);
+});
+
 test("positions are top-left, not dagre's centers", () => {
 	// two ranks of one node each: dagre centers them on the same x
 	const { nodes } = layout({
