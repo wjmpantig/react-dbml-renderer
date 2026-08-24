@@ -1,4 +1,4 @@
-import type DbmlField from "@dbml/core/types/model_structure/field";
+import type { Field as DbmlField } from "@dbml/core";
 import { Position } from "@xyflow/react";
 import clsx from "clsx";
 import { type HTMLAttributes, useEffect, useMemo, useState } from "react";
@@ -8,6 +8,15 @@ import { KeyIcon, NoteIcon } from "../icons";
 import Relation from "../Relation/Relation";
 import styles from "./Field.module.scss";
 
+// spell the default the way DBML does, so an expression default cannot be
+// mistaken for a string literal of the same text
+const formatDefault = (dbdefault: DbmlField["dbdefault"]) => {
+	const { type, value } = dbdefault;
+	if (type === "expression") return `\`${value}\``;
+	if (type === "string") return `'${value}'`;
+	return `${value}`;
+};
+
 type Props = HTMLAttributes<HTMLDivElement> & {
 	field: DbmlField;
 	edges: FieldEdge[];
@@ -15,7 +24,23 @@ type Props = HTMLAttributes<HTMLDivElement> & {
 
 const Field = (props: Props) => {
 	const { field, edges } = props;
-	const { name, type, not_null, pk, note, _enum, dbdefault } = field;
+	const {
+		name,
+		type,
+		not_null,
+		pk,
+		unique,
+		increment,
+		note,
+		_enum,
+		dbdefault,
+	} = field;
+
+	// type_name already carries any args ("varchar(254)"), so only the schema
+	// qualifier is missing on a cross-schema type
+	const typeName = type?.schemaName
+		? `${type.schemaName}.${type.type_name}`
+		: type?.type_name;
 
 	// hover or keyboard focus: both reveal the details panel
 	const [active, setActive] = useState(false);
@@ -59,10 +84,12 @@ const Field = (props: Props) => {
 				</div>
 				<div className={styles.properties}>
 					<span className={styles.dataType}>
-						<code className={styles.code}>{type?.type_name}</code>
+						<code className={styles.code}>{typeName}</code>
 					</span>
 					{!!_enum && <span title="Enum">E</span>}
 					{not_null && <span title="Not null">NN</span>}
+					{unique && <span title="Unique">U</span>}
+					{increment && <span title="Auto-increment">AI</span>}
 				</div>
 			</button>
 			{edges.map((edge) => (
@@ -86,6 +113,7 @@ const Field = (props: Props) => {
 										return (
 											<li key={value.id}>
 												<code className={styles.code}>{value.name}</code>
+												{value.note && <span> — {value.note}</span>}
 											</li>
 										);
 									})}
@@ -95,7 +123,8 @@ const Field = (props: Props) => {
 						{note && <div>{note}</div>}
 						{dbdefault && (
 							<div className={styles.nowrap}>
-								DEFAULT <code className={styles.code}>{dbdefault?.value}</code>
+								DEFAULT{" "}
+								<code className={styles.code}>{formatDefault(dbdefault)}</code>
 							</div>
 						)}
 					</div>

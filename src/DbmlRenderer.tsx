@@ -13,8 +13,11 @@ import {
 } from "@xyflow/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import EnumNode from "./components/EnumNode";
 import { CompressIcon, ExpandIcon } from "./components/icons";
+import StickyNote from "./components/StickyNote";
 import Table from "./components/Table";
+import TableGroup from "./components/TableGroup";
 import {
 	DbmlRendererContext,
 	type DbmlRendererContextValue,
@@ -30,6 +33,9 @@ type Props = {
 
 const nodeTypes = {
 	table: Table,
+	enum: EnumNode,
+	stickyNote: StickyNote,
+	tableGroup: TableGroup,
 };
 
 // The layout re-runs once tables report their measured size, so the initial

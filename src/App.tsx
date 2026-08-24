@@ -33,7 +33,7 @@ Enum currency_code {
 /**********************************************************
  * Public schema
  **********************************************************/
-Table public.users {
+Table public.users as U [headercolor: #3498DB] {
   id              bigint [pk, increment]
   email           varchar(254) [not null, unique]
   username        varchar(50) [not null, unique]
@@ -266,7 +266,7 @@ TableGroup public_app {
     public.user_favorites
 }
 
-TableGroup payments_core {
+TableGroup payments_core [color: #79AD51] {
   note: 'Payment-related tables for internal tools and services'
 
     payments.payment_methods
@@ -293,8 +293,69 @@ Ref: public.users.id < public.users.referrer_id
 
 // Cross-schema (explicit only): payment_events -> payment_intents
 Ref: payments.payment_intents.id < payments.payment_events.payment_intent_id
+
+/**********************************************************
+ * Renderer coverage: composite refs, optional/inactive refs,
+ * checks, and sticky notes
+ **********************************************************/
+Table public.regions {
+  country_code  char(2)  [not null]
+  region_code   varchar(8) [not null]
+  name          varchar(100) [not null]
+
+  Indexes {
+    (country_code, region_code) [pk, name: 'pk_regions']
+  }
+
+  note: '''
+  Composite primary key.
+  Both columns take part in the ref below.
+  '''
+}
+
+Table public.delivery_zones {
+  id            bigint [pk, increment]
+  country_code  char(2)  [not null]
+  region_code   varchar(8) [not null]
+  fee_cents     int [not null, default: 0, note: '''
+  Base delivery fee.
+  Stored in centavos.
+  ''']
+  surcharge     int [not null, default: 0]
+
+  checks {
+    \`fee_cents >= 0\` [name: 'chk_fee_non_negative']
+    \`surcharge >= 0\`
+  }
+}
+
+// Composite ref: both column pairs must be drawn
+Ref: public.delivery_zones.(country_code, region_code) > public.regions.(country_code, region_code)
+
+// Optional ref: a branch may have no delivery zone
+Ref: public.branches.id >? public.delivery_zones.id [delete: set null]
+
+// Inactive ref: documented, not enforced
+Ref: public.user_favorites.restaurant_id > public.menu_items.restaurant_id [inactive]
+
+Note design_reminder [color: #F4D03F] {
+  '''
+  Sticky note: payments tables are owned by the payments service.
+  Do not add cross-schema foreign keys without an ADR.
+  '''
+}
+
+Note floating_label [color: none] {
+  'A sticky note with no background'
+}
   `;
+// ?dbml=... overrides the sample, so the dev demo can be pointed at any schema
+// (the e2e suite uses it to exercise the parse-error path)
+const contentFromUrl = () =>
+	new URLSearchParams(window.location.search).get("dbml") ?? DEFAULT;
+
 function App() {
+	const [content] = useState(contentFromUrl);
 	const [theme, setTheme] = useState<"light" | "dark">("light");
 	return (
 		<div className="app" data-theme={theme}>
@@ -308,7 +369,7 @@ function App() {
 			>
 				{theme === "light" ? <FaMoon /> : <FaSun />}
 			</button>
-			<DbmlRenderer content={DEFAULT} colorMode={theme} />
+			<DbmlRenderer content={content} colorMode={theme} />
 		</div>
 	);
 }

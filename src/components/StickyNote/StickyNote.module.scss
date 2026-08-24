@@ -1,0 +1,25 @@
+.note {
+  border: 1px solid var(--dbml-node-border-color);
+  background-color: var(--dbml-sticky-bg, #fdf6c3);
+  color: #3b3b3b;
+  padding: 0.5rem 0.75rem;
+  max-width: 18rem;
+  border-radius: 3px;
+}
+
+.title {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.content {
+  // multi-line sticky notes keep their line breaks
+  white-space: pre-wrap;
+  font-size: smaller;
+}
+
+.plain {
+  border: none;
+  background: none;
+  color: var(--dbml-node-color);
+}

@@ -5,24 +5,11 @@
   background: none;
 
   &::before {
-    content: 'x';
+    content: attr(data-cardinality);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(0, -50%);
-  }
-}
-
-.relation-one {
-  &::before {
-    content: '1';
-  }
-}
-
-.relation-many {
-  &::before {
-    content: '*';
-
   }
 }
 

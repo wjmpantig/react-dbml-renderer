@@ -107,6 +107,8 @@
   padding: 0.5rem;
   display: block;
   width: max-content;
+  // multi-line notes (''' ... ''') keep their line breaks
+  white-space: pre-wrap;
 }
 
 .enum-list {

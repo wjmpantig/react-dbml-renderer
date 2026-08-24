@@ -6,24 +6,22 @@ import styles from "./Relation.module.scss";
 type Props = HandleProps & {
 	relation: string;
 };
-const RELATION_STYLES: Record<string, string> = {
-	"1": styles.relationOne,
-	"*": styles.relationMany,
-};
 const POSITION_STYLES: Record<string, string> = {
 	left: styles.left,
 	right: styles.right,
 };
 const Relation: FC<Props> = (props) => {
 	const { relation, position, ...otherProps } = props;
-	const relationStyle = RELATION_STYLES[relation];
 
 	const positionStyle = POSITION_STYLES[position];
 	return (
 		<Handle
 			{...otherProps}
 			position={position}
-			className={clsx(styles.base, positionStyle, relationStyle)}
+			// the cardinality IS the glyph ("1", "0..1", "*", "0..*"), so CSS reads
+			// it straight off the attribute instead of mapping every value
+			data-cardinality={relation}
+			className={clsx(styles.base, positionStyle)}
 		/>
 	);
 };
