@@ -8,6 +8,7 @@ import {
 	type ReactNode,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from "react";
 import { FaKey, FaNoteSticky } from "react-icons/fa6";
@@ -42,6 +43,10 @@ const Field = (props: Props) => {
 			edge.sourceHandle?.startsWith(handleIdPrefix) ||
 			edge.targetHandle?.startsWith(handleIdPrefix),
 	);
+	// connectedEdges is a fresh array every render; key effects/memos off the ids
+	const connectedEdgeIds = connectedEdges.map((edge) => edge.id).join("|");
+	const connectedEdgesRef = useRef(connectedEdges);
+	connectedEdgesRef.current = connectedEdges;
 
 	const [hovered, setHovered] = useState(false);
 	const { animatedEdges, addAnimatedEdges, removeAnimatedEdges } =
@@ -70,19 +75,19 @@ const Field = (props: Props) => {
 		);
 	});
 	const hasDetails = !!note || !!_enum || !!dbdefault;
-	// const edgeIds = connectedEdges.map((edge) => edge.id);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: connectedEdgeIds is the re-run trigger for the ref read below
 	useEffect(() => {
-		if (hovered) {
-			addAnimatedEdges(connectedEdges);
-		} else {
-			removeAnimatedEdges(connectedEdges);
-		}
-	}, [hovered]);
+		if (!hovered) return;
+		// snapshot: the cleanup must remove exactly what this run added, even if
+		// the edges changed or the field unmounted while hovered
+		const added = connectedEdgesRef.current;
+		addAnimatedEdges(added);
+		return () => removeAnimatedEdges(added);
+	}, [hovered, connectedEdgeIds, addAnimatedEdges, removeAnimatedEdges]);
 	const highlighted = useMemo(() => {
-		return animatedEdges.some((edge) =>
-			connectedEdges.some((connectedEdge) => connectedEdge.id === edge.id),
-		);
-	}, [animatedEdges, connectedEdges]);
+		const ids = new Set(connectedEdgeIds.split("|"));
+		return animatedEdges.some((edge) => ids.has(edge.id));
+	}, [animatedEdges, connectedEdgeIds]);
 	return (
 		<div className={styles.fieldContainer}>
 			<button
