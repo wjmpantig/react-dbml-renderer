@@ -1,8 +1,5 @@
-import type { Parser } from "@dbml/core";
+import type Database from "@dbml/core/types/model_structure/database";
+import type Table from "@dbml/core/types/model_structure/table";
 
-// Database returned by Parser.parse(...)
-type DbmlDatabase = ReturnType<Parser["parse"]>;
-type DbmlSchema = DbmlDatabase["schemas"][number];
-
-// This replaces your old DbmlTable type
-export type DbmlTable = DbmlSchema["tables"][number];
+export type DbmlDatabase = Database;
+export type DbmlTable = Table;

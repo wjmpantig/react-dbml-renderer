@@ -8,12 +8,17 @@ import dts from "vite-plugin-dts";
 export default defineConfig({
 	plugins: [
 		react(),
-		visualizer({
-			filename: "stats.html",
-			gzipSize: true,
-			brotliSize: true,
-			open: false,
-		}),
+		// ANALYZE=1 npm run build
+		...(process.env.ANALYZE
+			? [
+					visualizer({
+						filename: "stats.html",
+						gzipSize: true,
+						brotliSize: true,
+						open: false,
+					}),
+				]
+			: []),
 		dts({
 			entryRoot: "src",
 			outDir: "dist/types",
@@ -32,8 +37,8 @@ export default defineConfig({
 			// make sure to externalize deps that shouldn't be bundled
 			// into your library
 			external: [
-				/^react($|\/)/,        // Matches 'react' and 'react/jsx-runtime' etc.
-  			/^react-dom($|\/)/,
+				/^react($|\/)/, // Matches 'react' and 'react/jsx-runtime' etc.
+				/^react-dom($|\/)/,
 				"@dbml/core",
 				"@dbml/parse",
 				"@xyflow/react",
@@ -65,6 +70,6 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": resolve(__dirname, "src"),
-		}
-	}
+		},
+	},
 });

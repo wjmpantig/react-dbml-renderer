@@ -36,7 +36,8 @@ const Field = (props: Props) => {
 	const connectedEdgesRef = useRef(connectedEdges);
 	connectedEdgesRef.current = connectedEdges;
 
-	const [hovered, setHovered] = useState(false);
+	// hover or keyboard focus: both reveal the details panel and the relations
+	const [active, setActive] = useState(false);
 	const { animatedEdges, addAnimatedEdges, removeAnimatedEdges } =
 		useDbmlRendererContext();
 	const handles = connectedEdges.map<ReactNode>((edge) => {
@@ -65,13 +66,13 @@ const Field = (props: Props) => {
 	const hasDetails = !!note || !!_enum || !!dbdefault;
 	// biome-ignore lint/correctness/useExhaustiveDependencies: connectedEdgeIds is the re-run trigger for the ref read below
 	useEffect(() => {
-		if (!hovered) return;
+		if (!active) return;
 		// snapshot: the cleanup must remove exactly what this run added, even if
 		// the edges changed or the field unmounted while hovered
 		const added = connectedEdgesRef.current;
 		addAnimatedEdges(added);
 		return () => removeAnimatedEdges(added);
-	}, [hovered, connectedEdgeIds, addAnimatedEdges, removeAnimatedEdges]);
+	}, [active, connectedEdgeIds, addAnimatedEdges, removeAnimatedEdges]);
 	const highlighted = useMemo(() => {
 		const ids = new Set(connectedEdgeIds.split("|"));
 		return animatedEdges.some((edge) => ids.has(edge.id));
@@ -81,12 +82,10 @@ const Field = (props: Props) => {
 			<button
 				className={clsx(styles.field, highlighted && styles.fieldHighlighted)}
 				type="button"
-				onMouseEnter={() => {
-					setHovered(true);
-				}}
-				onMouseLeave={() => {
-					setHovered(false);
-				}}
+				onMouseEnter={() => setActive(true)}
+				onMouseLeave={() => setActive(false)}
+				onFocus={() => setActive(true)}
+				onBlur={() => setActive(false)}
 			>
 				<div className={styles.label}>
 					<span
@@ -98,7 +97,6 @@ const Field = (props: Props) => {
 						{note && <NoteIcon className={styles.icon} />}
 					</span>
 				</div>
-				{handles}
 				<div className={styles.properties}>
 					<span className={styles.dataType}>
 						<code className={styles.code}>{type?.type_name}</code>
@@ -107,7 +105,8 @@ const Field = (props: Props) => {
 					{not_null && <span title="Not null">NN</span>}
 				</div>
 			</button>
-			{hasDetails && hovered && (
+			{handles}
+			{hasDetails && active && (
 				<aside className={styles.details}>
 					<div className={styles.detailsFieldName}>{name}</div>
 					<div className={styles.detailsContent}>

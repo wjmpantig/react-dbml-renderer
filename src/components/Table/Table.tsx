@@ -1,5 +1,5 @@
 import type { Node } from "@xyflow/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useDbmlRendererContext } from "../../contexts/DbmlRendererContext";
 import type { DbmlTable } from "../../types";
 import { createTableId } from "../../utils/ids";
@@ -15,23 +15,25 @@ const Table = (props: Props) => {
 	const {
 		data: { table },
 	} = props;
-	const [rendered, setRendered] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 	const { setTable } = useDbmlRendererContext();
 
 	const { fields, name, schema } = table;
 	const tableId = createTableId(table);
 	useEffect(() => {
-		if (!ref.current || !rendered) return;
-		const { clientHeight: height, clientWidth: width } = ref.current;
-		setTable(tableId, {
-			width,
-			height,
+		const element = ref.current;
+		if (!element) return;
+		// report the box dagre has to lay out, and keep reporting it as fonts
+		// load or the content changes; setTable ignores unchanged measurements
+		const observer = new ResizeObserver(() => {
+			setTable(tableId, {
+				width: element.offsetWidth,
+				height: element.offsetHeight,
+			});
 		});
-	}, [rendered]);
-	useEffect(() => {
-		setRendered(true);
-	}, []);
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, [tableId, setTable]);
 
 	return (
 		<div className={styles.table} ref={ref}>
