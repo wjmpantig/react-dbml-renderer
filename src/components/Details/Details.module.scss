@@ -1,0 +1,28 @@
+.details {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 0.25rem);
+  border: 1px solid var(--dbml-node-border-color);
+  background-color: var(--dbml-node-bg);
+  color: var(--dbml-node-color);
+  font-size: smaller;
+  z-index: 99;
+}
+
+.heading {
+  padding-inline: 1rem;
+  overflow-wrap: break-word;
+  border-bottom: 1px solid var(--dbml-node-border-color);
+}
+
+.content {
+  padding: 0.5rem;
+  display: block;
+  // as wide as the content needs, but a long note has to wrap instead of
+  // running off the canvas
+  width: max-content;
+  max-width: 18rem;
+  // multi-line notes (''' ... ''') keep their line breaks
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}

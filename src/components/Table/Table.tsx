@@ -1,8 +1,9 @@
 import type { Node } from "@xyflow/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDbmlRendererContext } from "../../contexts/DbmlRendererContext";
 import { createTableId } from "../../utils/ids";
 import type { FieldEdge, TableData } from "../../utils/layout";
+import Details from "../Details";
 import Field from "../Field";
 import { NoteIcon } from "../icons";
 import styles from "./Table.module.scss";
@@ -30,6 +31,8 @@ const Table = (props: Props) => {
 		data: { table, fieldEdges },
 	} = props;
 	const ref = useRef<HTMLDivElement>(null);
+	// hover or keyboard focus on the note button, same as a column note
+	const [noteActive, setNoteActive] = useState(false);
 	const { setTable } = useDbmlRendererContext();
 
 	const { fields, name, schema, alias, note, headerColor, indexes, checks } =
@@ -61,11 +64,24 @@ const Table = (props: Props) => {
 						? { backgroundColor: headerColor }
 						: undefined
 				}
-				title={note ?? undefined}
 			>
 				{qualify(schema.name, name)}
 				{alias && <span className={styles.alias}> as {alias}</span>}
-				{note && <NoteIcon className={styles.icon} />}
+				{note && (
+					<button
+						type="button"
+						// nodrag: reading the note must not drag the table
+						className={`${styles.noteButton} nodrag`}
+						aria-label={`Note for ${name}`}
+						onMouseEnter={() => setNoteActive(true)}
+						onMouseLeave={() => setNoteActive(false)}
+						onFocus={() => setNoteActive(true)}
+						onBlur={() => setNoteActive(false)}
+					>
+						<NoteIcon className={styles.icon} />
+					</button>
+				)}
+				{note && noteActive && <Details heading={name}>{note}</Details>}
 			</div>
 			{fields.map((field) => {
 				return (

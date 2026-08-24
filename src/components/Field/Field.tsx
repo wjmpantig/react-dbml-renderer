@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { type HTMLAttributes, useEffect, useMemo, useState } from "react";
 import { useDbmlRendererContext } from "../../contexts/DbmlRendererContext";
 import type { FieldEdge } from "../../utils/layout";
+import Details from "../Details";
 import { KeyIcon, NoteIcon } from "../icons";
 import Relation from "../Relation/Relation";
 import styles from "./Field.module.scss";
@@ -102,33 +103,30 @@ const Field = (props: Props) => {
 				/>
 			))}
 			{hasDetails && active && (
-				<aside className={styles.details}>
-					<div className={styles.detailsFieldName}>{name}</div>
-					<div className={styles.detailsContent}>
-						{_enum && (
-							<div>
-								<div className={styles.nowrap}>ENUM {_enum.name}</div>
-								<ul className={styles.enumList}>
-									{_enum.values.map((value) => {
-										return (
-											<li key={value.id}>
-												<code className={styles.code}>{value.name}</code>
-												{value.note && <span> — {value.note}</span>}
-											</li>
-										);
-									})}
-								</ul>
-							</div>
-						)}
-						{note && <div>{note}</div>}
-						{dbdefault && (
-							<div className={styles.nowrap}>
-								DEFAULT{" "}
-								<code className={styles.code}>{formatDefault(dbdefault)}</code>
-							</div>
-						)}
-					</div>
-				</aside>
+				<Details heading={name}>
+					{_enum && (
+						<div>
+							<div className={styles.nowrap}>ENUM {_enum.name}</div>
+							<ul className={styles.enumList}>
+								{_enum.values.map((value) => {
+									return (
+										<li key={value.id}>
+											<code className={styles.code}>{value.name}</code>
+											{value.note && <span> — {value.note}</span>}
+										</li>
+									);
+								})}
+							</ul>
+						</div>
+					)}
+					{note && <div>{note}</div>}
+					{dbdefault && (
+						<div className={styles.nowrap}>
+							DEFAULT{" "}
+							<code className={styles.code}>{formatDefault(dbdefault)}</code>
+						</div>
+					)}
+				</Details>
 			)}
 		</div>
 	);

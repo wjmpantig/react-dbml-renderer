@@ -23,7 +23,8 @@ majors behind and the renderer read a narrow slice of the AST. Both are closed.
 - [x] Field gaps: `unique` (U) and `increment` (AI) badges, `dbdefault.type` so an
   expression default cannot read as a string literal, `type.schemaName` on
   cross-schema types, enum value notes.
-- [x] Table gaps: `note`, `alias`, `headercolor`, an **Indexes** section, a
+- [x] Table gaps: `note` (an activated panel, shared with column notes — not a
+  native `title` tooltip), `alias`, `headercolor`, an **Indexes** section, a
   **Checks** section, and the implicit `public.` prefix dropped. The pre-measure
   row estimate counts the new sections.
 - [x] Optional cardinality (`>?`, `?>`, `-?`, `<>?`) — the cardinality domain
@@ -56,6 +57,12 @@ majors behind and the renderer read a narrow slice of the AST. Both are closed.
   rather than a constraint dagre respects, so a group's members can be spread far
   apart and the box grows to cover unrelated space. Teaching dagre a compound
   graph (clusters) is the real fix.
+- [ ] **The details panel always opens to the right** ([Details.module.scss](src/components/Details/Details.module.scss)
+  pins `left: calc(100% + 0.25rem)`). Its width is capped so a long note wraps
+  instead of growing without bound, but a node near the right edge — or a
+  zoomed-in canvas — still pushes the panel off screen. Flipping to the left when
+  there is no room needs the node's position plumbed into `Field`, which only
+  receives its column today.
 - [ ] ~~Hover/highlight has no test~~ — closed: covered by
   [e2e/interaction.spec.ts](e2e/interaction.spec.ts).
 

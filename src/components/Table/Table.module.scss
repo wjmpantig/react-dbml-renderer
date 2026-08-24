@@ -6,6 +6,8 @@
 }
 
 .header {
+  // anchors the note panel
+  position: relative;
   font-weight: bold;
   border-bottom: 2px solid var(--dbml-node-border-color);
   padding-inline: 1rem;
@@ -63,4 +65,15 @@
   background: var(--dbml-code-bg);
   padding: 0.15em 0.4em;
   border-radius: 3px;
+}
+
+.note-button {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: help;
+  vertical-align: middle;
 }

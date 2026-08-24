@@ -86,31 +86,6 @@
   border-radius: 3px;
 }
 
-.details {
-  position: absolute;
-  top: 0;
-  left: calc(100% + 0.25rem);
-  border: 1px solid var(--dbml-node-border-color);
-  background-color: var(--dbml-node-bg);
-  color: var(--dbml-node-color);
-  font-size: smaller;
-
-}
-
-.details-field-name {
-  padding-inline: 1rem;
-  z-index: 99;
-  border-bottom: 1px solid var(--dbml-node-border-color);
-}
-
-.details-content {
-  padding: 0.5rem;
-  display: block;
-  width: max-content;
-  // multi-line notes (''' ... ''') keep their line breaks
-  white-space: pre-wrap;
-}
-
 .enum-list {
   margin: 0;
   padding-left: 1rem;

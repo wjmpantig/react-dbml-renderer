@@ -55,7 +55,7 @@ test("field details open on hover and on keyboard focus", async ({ page }) => {
 
 test("a multi-line column note renders on multiple lines", async ({ page }) => {
 	await page.locator("button").filter({ hasText: "fee_cents" }).first().hover();
-	const content = page.locator("aside [class*='details-content']").first();
+	const content = page.getByTestId("details-content").first();
 	await expect(content).toBeVisible();
 	// the regression this guards: without pre-wrap the newlines collapse
 	await expect(content).toHaveCSS("white-space", "pre-wrap");

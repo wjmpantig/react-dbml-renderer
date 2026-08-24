@@ -27,7 +27,7 @@ test("a table header carries its alias, note and headercolor", async ({
 	await expect(header).toContainText("users");
 	await expect(header).not.toContainText("public.users");
 	await expect(header).toContainText("as U");
-	await expect(header).toHaveAttribute("title", /end users/i);
+	await expect(header.getByRole("button", { name: /^Note for/ })).toBeVisible();
 	// [headercolor: #3498DB]
 	await expect(header).toHaveCSS("background-color", "rgb(52, 152, 219)");
 });

@@ -37,6 +37,7 @@ This is a React component library (`@wjmpantig/react-dbml-renderer`) that render
 - [src/DbmlRenderer.tsx](src/DbmlRenderer.tsx) — entry component; orchestrates parsing, dagre layout, and passes nodes/edges to React Flow
 - [src/components/Table/](src/components/Table/) — React Flow node component for each database table
 - [src/components/Field/](src/components/Field/) — renders each column within a table, hosts React Flow handles for edges
+- [src/components/Details/](src/components/Details/) — the hover/focus panel shared by column notes and table notes, so both activate the same way
 - [src/components/Relation/](src/components/Relation/) — visual handle component attached to fields for edge connections; the cardinality (`1`, `0..1`, `*`, `0..*`) is rendered by CSS off `attr(data-cardinality)`
 - [src/components/TableGroup/](src/components/TableGroup/) — backdrop node for a DBML `TableGroup`; members become React Flow child nodes via `parentId`
 - [src/components/StickyNote/](src/components/StickyNote/) — top-level `Note` blocks
