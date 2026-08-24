@@ -9,6 +9,7 @@ import {
 	ReactFlow,
 	useEdgesState,
 	useNodesState,
+	useReactFlow,
 } from "@xyflow/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -29,6 +30,19 @@ type Props = {
 
 const nodeTypes = {
 	table: Table,
+};
+
+// The layout re-runs once tables report their measured size, so the initial
+// fitView is stale by then. Refit on each layout, but not on node drags.
+const FitOnLayout = ({ layoutId }: { layoutId: number }) => {
+	const { fitView } = useReactFlow();
+	// biome-ignore lint/correctness/useExhaustiveDependencies: layoutId is the trigger
+	useEffect(() => {
+		// wait a frame: React Flow needs to measure the new nodes before it can fit them
+		const frame = requestAnimationFrame(() => fitView());
+		return () => cancelAnimationFrame(frame);
+	}, [layoutId, fitView]);
+	return null;
 };
 
 const DbmlRenderer = (props: Props) => {
@@ -60,6 +74,7 @@ const DbmlRenderer = (props: Props) => {
 	}, [content]);
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
 	const [edges, setEdges] = useEdgesState<Edge>([]);
+	const [layoutId, setLayoutId] = useState(0);
 
 	useEffect(() => {
 		if (!database.db) {
@@ -79,6 +94,7 @@ const DbmlRenderer = (props: Props) => {
 		);
 		setNodes(layoutedNodes);
 		setEdges(layoutedEdges);
+		setLayoutId((id) => id + 1);
 	}, [database, tableSizes, setEdges, setNodes]);
 
 	useEffect(() => {
@@ -166,6 +182,7 @@ const DbmlRenderer = (props: Props) => {
 						nodeTypes={nodeTypes}
 						colorMode={colorMode}
 					>
+						<FitOnLayout layoutId={layoutId} />
 						<Background />
 						<Controls>
 							<ControlButton
