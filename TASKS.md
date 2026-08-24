@@ -2,10 +2,12 @@
 
 ## Bugs — do these first
 
-- [ ] **Layout ignores measured table sizes.** [DbmlRenderer.tsx:189-202](src/DbmlRenderer.tsx#L189-L202) — the layout effect deps are all stable, so `setTable` never triggers a re-layout. Every diagram uses the fallback estimate `172 × 36*(fields+1)`. Add `tableSizes` to the deps; guard so layout runs once all tables have reported, not once per measurement.
-- [ ] **dagre centers vs React Flow top-left.** [DbmlRenderer.tsx:150-153](src/DbmlRenderer.tsx#L150-L153) — `dagre.layout` returns node centers; React Flow `position` is top-left. Subtract `width/2` / `height/2`. Re-tune `nodesep`/`ranksep` only after this and the task above land.
+- [x] **Layout ignores measured table sizes.** [DbmlRenderer.tsx:189-202](src/DbmlRenderer.tsx#L189-L202) — the layout effect deps are all stable, so `setTable` never triggers a re-layout. Every diagram uses the fallback estimate `172 × 36*(fields+1)`. Add `tableSizes` to the deps; guard so layout runs once all tables have reported, not once per measurement.
+- [x] **dagre centers vs React Flow top-left.** [DbmlRenderer.tsx:150-153](src/DbmlRenderer.tsx#L150-L153) — `dagre.layout` returns node centers; React Flow `position` is top-left. Subtract `width/2` / `height/2`. Re-tune `nodesep`/`ranksep` only after this and the task above land.
 - [ ] **Parse errors render on one line.** [DbmlRenderer.tsx:252-259](src/DbmlRenderer.tsx#L252-L259) — diagnostics are joined with `\n` into a `<div>`. Add `white-space: pre-wrap` to `.error`.
-- [ ] **Stale closure on field hover.** [Field.tsx:74-80](src/components/Field/Field.tsx#L74-L80) — effect deps are `[hovered]` but it closes over `connectedEdges`. If edges change mid-hover, `removeAnimatedEdges` runs with the old list and the animation sticks.
+- [x] **Stale closure on field hover.** [Field.tsx:74-80](src/components/Field/Field.tsx#L74-L80) — effect deps are `[hovered]` but it closes over `connectedEdges`. If edges change mid-hover, `removeAnimatedEdges` runs with the old list and the animation sticks.
+
+- [x] **Viewport did not follow the re-layout.** Fell out of the first fix: the initial `fitView` ran against the estimated layout. `FitOnLayout` refits once per layout pass (not on drags).
 
 ## Performance
 
@@ -34,7 +36,8 @@
 
 ## Project hygiene
 
-- [ ] One smoke test: parse a schema, assert node/edge counts and that layout positions differ. Would have caught the layout bug.
+- [x] Smoke tests: [src/utils/layout.test.ts](src/utils/layout.test.ts) covers node/edge creation, handle sides, top-left conversion, and measured sizes driving the layout. `npm test` (vitest).
+- [ ] Hover/highlight has no unit test — it needs jsdom + a React Flow provider. Covered by Playwright for now; add RTL if it regresses.
 - [ ] CI running `npm run lint && npm run build`.
 - [ ] `prepublishOnly` script so `dist` can't go stale on publish.
-- [ ] Update [CLAUDE.md](CLAUDE.md) — the "measure then feed back into dagre" description is aspirational until the first task lands.
+- [x] ~~Update [CLAUDE.md](CLAUDE.md)~~ — the described measure-then-layout loop is now real.
