@@ -11,6 +11,8 @@
   gap: 1rem;
   padding: 0.1rem 1rem;
   width: 100%;
+  // rows must widen the table instead of spilling out of it
+  min-width: max-content;
   align-items: center;
   appearance: none;
   background: none;
