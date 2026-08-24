@@ -26,3 +26,6 @@ dist-ssr
 stats.html
 
 .npmrc
+# yalc (local package linking)
+.yalc/
+yalc.lock

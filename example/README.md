@@ -71,3 +71,18 @@ export default defineConfig([
   },
 ])
 ```
+
+## Testing against local library changes
+
+The example installs the published package. To point it at your working copy:
+
+```bash
+npm run build && yalc publish   # in the repo root, after every change
+cd example && yalc add @wjmpantig/react-dbml-renderer && npm install
+npm run dev
+```
+
+`yalc remove @wjmpantig/react-dbml-renderer` (then `npm install`) puts the
+published package back. `.yalc/` and `yalc.lock` are gitignored; the
+`file:.yalc/...` entry yalc writes into package.json is local-only — don't
+commit it.
