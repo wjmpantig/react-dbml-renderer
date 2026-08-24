@@ -36,7 +36,8 @@
 		"lint": "npx @biomejs/biome check",
 		"lint:fix": "npx @biomejs/biome check --write",
 		"preview": "vite preview",
-		"test": "vitest run"
+		"test": "vitest run",
+		"prepublishOnly": "npm run lint && npm test && npm run build"
 	},
 	"dependencies": {
 		"@dagrejs/dagre": "^1.1.8",
