@@ -302,7 +302,9 @@ function App() {
 				type="button"
 				className="theme-toggle"
 				onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
-				title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+				title={
+					theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+				}
 			>
 				{theme === "light" ? <FaMoon /> : <FaSun />}
 			</button>

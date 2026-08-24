@@ -20,21 +20,9 @@ type Props = HTMLAttributes<HTMLDivElement> & {
 	field: DbmlField;
 };
 
-// const HANDLE_TYPES = ['source','target']
-// const POSITIONS = ['left','right']
 const Field = (props: Props) => {
 	const { field } = props;
-	const {
-		name,
-		type,
-		not_null,
-		pk,
-		note,
-		// endpoints, table,
-		id,
-		_enum,
-		dbdefault,
-	} = field;
+	const { name, type, not_null, pk, note, id, _enum, dbdefault } = field;
 	const edges = useEdges();
 
 	const handleIdPrefix = `field-${id}-`;

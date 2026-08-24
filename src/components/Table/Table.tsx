@@ -19,14 +19,7 @@ const Table = (props: Props) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const { setTable } = useDbmlRendererContext();
 
-	const {
-		fields,
-		name,
-		// id,
-		schema,
-		// TODO: use note
-		// note
-	} = table;
+	const { fields, name, schema } = table;
 	const tableId = createTableId(table);
 	useEffect(() => {
 		if (!ref.current || !rendered) return;
