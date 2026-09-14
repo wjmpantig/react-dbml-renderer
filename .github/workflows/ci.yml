@@ -20,9 +20,12 @@ jobs:
       # Catches a broken release config here rather than at release time. Needs
       # no credentials: only the two plugins that read commits are loaded.
       # --no-ci because semantic-release otherwise stops on a pull_request
-      # event before it generates any notes.
+      # event before it generates any notes; the temporary branch is because
+      # a PR checkout is detached at the merge ref, which matches no branch.
       - name: Dry-run the release
-        run: npx semantic-release --dry-run --no-ci --branches "${{ github.head_ref || github.ref_name }}" --plugins @semantic-release/commit-analyzer @semantic-release/release-notes-generator
+        run: |
+          git switch -c ci-release-dry-run
+          npx semantic-release --dry-run --no-ci --branches ci-release-dry-run --plugins @semantic-release/commit-analyzer @semantic-release/release-notes-generator
       - run: npm run lint
       - run: npm test
       - run: npm run build
