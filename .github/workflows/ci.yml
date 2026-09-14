@@ -19,18 +19,11 @@ jobs:
       - run: npm ci
       # Catches a broken release config here rather than at release time. Needs
       # no credentials: only the two plugins that read commits are loaded.
-      # The branch is recreated because a PR checkout is detached at the merge
-      # ref, which matches no branch semantic-release would release from.
+      # semantic-release takes the branch from GITHUB_REF, which on a PR is the
+      # merge ref (GITHUB_* cannot be overridden), so that ref is listed as a
+      # release branch; --no-ci gets past the "this is a pull request" bail.
       - name: Dry-run the release
-        env:
-          BRANCH: ${{ github.head_ref || github.ref_name }}
-          # semantic-release reads the branch from GITHUB_REF, which on a PR is
-          # the merge ref, and skips the run outright when the event is a PR.
-          GITHUB_REF: refs/heads/${{ github.head_ref || github.ref_name }}
-          GITHUB_EVENT_NAME: push
-        run: |
-          git switch -C "$BRANCH"
-          npx semantic-release --dry-run --branches "$BRANCH" --plugins @semantic-release/commit-analyzer @semantic-release/release-notes-generator
+        run: npx semantic-release --dry-run --no-ci --branches master "refs/pull/*/merge" --plugins @semantic-release/commit-analyzer @semantic-release/release-notes-generator
       - run: npm run lint
       - run: npm test
       - run: npm run build
