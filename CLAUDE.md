@@ -64,3 +64,15 @@ This is a React component library (`@wjmpantig/react-dbml-renderer`) that render
 ## Example App
 
 The [example/](example/) directory is a separate project that consumes the built library. To develop with it, build the library first then run the example separately.
+
+## Committing
+
+Micro-commit: one logical change per commit, committed as soon as it stands on
+its own, rather than one big commit at the end of a session.
+
+Commit messages are [Conventional Commits](https://www.conventionalcommits.org)
+— `feat:`, `fix:`, `perf:`, `docs:`, `chore:`, `ci:`, `refactor:`, `test:`, and
+`feat!:`/`BREAKING CHANGE:` for breaking changes. This is not cosmetic:
+semantic-release reads them on every push to `master` to decide the next
+version, so a `fix:` ships a patch, a `feat:` a minor, and a `!` a major.
+Anything else (`chore:`, `docs:`, `ci:`) ships no release.
