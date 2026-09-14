@@ -38,6 +38,12 @@ majors behind and the renderer read a narrow slice of the AST. Both are closed.
 
 ## Open
 
+- [ ] **Point `example/` at v2 once 2.0.0 is published.** It currently declares
+  `@wjmpantig/react-dbml-renderer: ^1.0.0`, whose peer is `@dbml/core ^5.1.0` —
+  that conflicts with the `^10.1.1` v2 needs, and `^2.0.0` cannot be resolved (or
+  locked) before publish. After publishing: `yalc remove` + `npm install` in
+  `example/` to drop the local-only `file:.yalc/...` entry, then bump both deps in
+  one commit.
 - [ ] **`records` / Data Sample** is still unrendered. v10 parses it
   (`table.records`, `database.records`); nothing reads it. Needs a decision on
   where sample rows belong in a diagram before it is worth building.
