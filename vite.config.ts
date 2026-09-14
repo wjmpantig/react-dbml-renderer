@@ -1,8 +1,8 @@
 import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
-import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import { defineConfig } from "vitest/config";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -61,6 +61,10 @@ export default defineConfig({
 			},
 		},
 		cssCodeSplit: false,
+	},
+	// vitest would otherwise also collect the Playwright specs in e2e/
+	test: {
+		include: ["src/**/*.test.ts"],
 	},
 	css: {
 		modules: {

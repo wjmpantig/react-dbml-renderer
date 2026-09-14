@@ -1,0 +1,30 @@
+.enum {
+  border: 1px solid var(--dbml-node-border-color);
+  background-color: var(--dbml-node-bg);
+  color: var(--dbml-node-color);
+  padding-bottom: 0.5rem;
+}
+
+.header {
+  font-weight: bold;
+  border-bottom: 2px solid var(--dbml-node-border-color);
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.value {
+  padding-inline: 1rem;
+  padding-block: 0.15rem;
+  white-space: nowrap;
+  min-width: max-content;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.note {
+  opacity: 0.6;
+  font-size: smaller;
+}

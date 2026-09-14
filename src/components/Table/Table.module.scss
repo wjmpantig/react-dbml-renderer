@@ -6,10 +6,74 @@
 }
 
 .header {
+  // anchors the note panel
+  position: relative;
   font-weight: bold;
   border-bottom: 2px solid var(--dbml-node-border-color);
   padding-inline: 1rem;
   padding-block: 0.5rem;
   white-space: nowrap;
   min-width: max-content;
+}
+
+.alias {
+  font-weight: normal;
+  opacity: 0.7;
+}
+
+.icon {
+  vertical-align: middle;
+  margin-inline-start: 0.25rem;
+}
+
+.section {
+  border-top: 1px solid var(--dbml-node-border-color);
+  margin-top: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.section-title {
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  padding-inline: 1rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 1rem;
+  padding-block: 0.15rem;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.badges {
+  display: flex;
+  gap: 0.25rem;
+  font-size: 0.7em;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8em;
+  background: var(--dbml-code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+
+.note-button {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: help;
+  vertical-align: middle;
 }
